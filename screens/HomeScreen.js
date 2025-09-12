@@ -1,17 +1,11 @@
 import { useNavigation } from "@react-navigation/native";
 import * as React from "react";
 import { Text, View, Button } from "react-native";
+import { StyleSheet } from "react-native";
 
 const HomeScreen = () => {
   return (
-    <View
-      style={{
-        alignItems: "center",
-        flex: 1,
-        centerItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <View style={styles.view}>
       <View>
         <Text>Home Screen</Text>
       </View>
@@ -31,6 +25,15 @@ const HomeScreen = () => {
       </View>
     </View>
   );
+
+  const styles = StyleSheet.create({
+    view: {
+      flex: 1,
+      centerItems: "center",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+  });
 };
 
 export default HomeScreen;
