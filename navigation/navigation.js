@@ -6,18 +6,13 @@ import SettingScreen from "../screens/SettingScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ShelfScreen from "../screens/ShelfScreen";
 import RegistrationScreen from "../screens/RegistrationScreen";
-import * as Icons from "react-native-vector-icons/FontAwesome6";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const BottomTabNavigation = () => (
   <Tab.Navigator>
-    <Tab.Screen
-      name="Home"
-      component={HomeScreen}
-      options={{ tabBarLabel: Icons.FontAwesome6IconButton.house }}
-    />
+    <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="Settings" component={SettingScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
     <Tab.Screen name="Shelf" component={ShelfScreen} />
