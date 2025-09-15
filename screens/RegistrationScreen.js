@@ -8,10 +8,13 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
+import { useAuth } from "../auth/AuthContext";
 import { useState, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RegistrationScreen = () => {
+  const { signUp, user } = useAuth();
+
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
   const emailRef = useRef();
@@ -22,22 +25,32 @@ const RegistrationScreen = () => {
   const [email, setEmail] = useState("");
 
   const handleSignup = async () => {
+    // Call the signUp function from AuthContext
+    await signUp(username, password, email);
+
+    // Basic validation
+    //If the passwords do not match, alert the user and return
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
       alert("Passwords do not match");
       return;
+
+      //If the username is less than 3 characters, alert the user and return
     } else if (username.length < 3) {
       console.log("Username must be at least 3 characters long");
       alert("Username must be at least 3 characters long");
       return;
+
+      //If the password is less than 5 characters, alert the user and return
     } else if (password.length < 5) {
       console.log("Password must be at least 5 characters long");
       alert("Password must be at least 5 characters long");
       return;
     }
+    // Save user data to AsyncStorage
     try {
       await AsyncStorage.setItem(
-        "user",
+        `user_${username}`,
         JSON.stringify({ username, password, email })
       );
       alert("Signup Successful!");
@@ -60,8 +73,10 @@ const RegistrationScreen = () => {
         email
     );
   };
+
+  // Function to check if account exists
   const checkAccount = async () => {
-    const account = await AsyncStorage.getItem("user");
+    const account = await AsyncStorage.getItem(`user`);
     if (account) {
       alert(
         "Account exists, user is registered:" +
@@ -82,6 +97,8 @@ const RegistrationScreen = () => {
   };
 
   return (
+    // Registration Screen
+    // Using KeyboardAvoidingView to prevent keyboard from covering inputs
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}

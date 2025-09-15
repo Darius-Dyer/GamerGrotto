@@ -2,8 +2,11 @@ import * as React from "react";
 import { Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../auth/AuthContext";
 
 const HomeScreen = () => {
+  const { user } = useAuth();
+
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -17,33 +20,38 @@ const HomeScreen = () => {
       >
         <Text style={styles.titleText}>
           {"  "}
-          Welcome To Gamer Grotto One Stop Shop For all Your Gaming Needs!
+          Welcome To Gamer Grotto One Stop Shop For all Your Gaming Needs!{"\n"}
+          Logged in as: {user ? user.username : "Guest"}
         </Text>
 
-        <View style={styles.view}>
-          <Text style={styles.mainText}>
-            If you're new here, please register to get full access to the
-            services provided.
-            {"\n"}
-          </Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("Registration")}
-          >
-            <Text style={styles.mainText}>Register Here</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.mainText}>
-            {"\n"}
-            If you are a returning user please log in to access your account
-          </Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Profile")}
-            style={styles.button}
-          >
-            <Text style={styles.mainText}>Login Here</Text>
-          </TouchableOpacity>
-        </View>
+        {!user ? (
+          <View style={styles.view}>
+            <Text style={styles.mainText}>
+              If you're new here, please register to get full access to the
+              services provided.
+              {"\n"}
+            </Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate("Registration")}
+            >
+              <Text style={styles.mainText}>Register Here</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.view}>
+            <Text style={styles.mainText}>
+              {"\n"}
+              If you are a returning user please log in to access your account
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Profile")}
+              style={styles.button}
+            >
+              <Text style={styles.mainText}>Login Here</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
