@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useState, useContext } from "react";
 
 // Create AuthContext
@@ -12,8 +13,15 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (username, password, email) => {
     console.log("Signing up user:", username, email);
     // Simulate successful sign-up
+    if (!username || !password) {
+      alert("Username and password are required");
+      return false;
+    } else if (password.length < 5) {
+      alert("Password must be at least 5 characters long");
+      return false;
+    }
     setUser({ username, email });
-    return { username, email };
+    return true, { username, email };
   };
 
   // Simulated sign-in function
@@ -42,9 +50,32 @@ export const AuthProvider = ({ children }) => {
     return;
   };
 
+  const checkAccount = async () => {
+    const account = await AsyncStorage.getItem(`user`);
+    if (account) {
+      console.log("Stored Account data: ", JSON.parse(account));
+      alert(
+        "Account exists, user is registered:" +
+          "Username:" +
+          username +
+          " " +
+          "Password:" +
+          password
+      );
+      // Account exists, user is registered
+    } else if (account && username && password) {
+      alert("Account already exists, please log in");
+      // Account exists, user is registered
+    } else {
+      alert("No account found, please register");
+    }
+  };
+
   // Provide user and auth functions to context consumers
   return (
-    <AuthContext.Provider value={{ user, signUp, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user, signUp, signIn, signOut, checkAccount }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -6,8 +6,8 @@ import { useAuth } from "../auth/AuthContext";
 
 const HomeScreen = () => {
   const { user } = useAuth();
-
   const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -18,38 +18,63 @@ const HomeScreen = () => {
           justifyContent: "center",
         }}
       >
-        <Text style={styles.titleText}>
-          {"  "}
-          Welcome To Gamer Grotto One Stop Shop For all Your Gaming Needs!{"\n"}
-          Logged in as: {user ? user.username : "Guest"}
-        </Text>
-
-        {!user ? (
+        {/*Conditional rendering - If User is logged in, display welcome back
+        message. If not logged in it will display guest message.*/}
+        {user ? (
           <View style={styles.view}>
-            <Text style={styles.mainText}>
-              If you're new here, please register to get full access to the
-              services provided.
-              {"\n"}
+            <Text style={styles.titleText}>
+              {"  "}
+              Welcome Back To Gamer Grotto {user.username}!{"\n"}
+              Enjoy your stay!
             </Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => navigation.navigate("Registration")}
-            >
-              <Text style={styles.mainText}>Register Here</Text>
-            </TouchableOpacity>
+            <View style={styles.view}>
+              <Text style={styles.mainText}>
+                If You would like to edit or log out of your account,{"\n"}
+                please navigate to the Profile Screen
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Profile")}
+                styles={styles.button}
+              >
+                <Text style={styles.mainText}>Go to Profile</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ) : (
           <View style={styles.view}>
-            <Text style={styles.mainText}>
+            <Text style={styles.titleText}>
+              {"  "}
+              Welcome To Gamer Grotto One Stop Shop For all Your Gaming Needs!
               {"\n"}
-              If you are a returning user please log in to access your account
+              You are currently Logged in as a Guest
             </Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Profile")}
-              style={styles.button}
-            >
-              <Text style={styles.mainText}>Login Here</Text>
-            </TouchableOpacity>
+
+            <View style={styles.view}>
+              <Text style={styles.mainText}>
+                If you're new here, please register to get full access to the
+                services provided.
+                {"\n"}
+              </Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigation.navigate("Registration")}
+              >
+                <Text style={styles.mainText}>Register Here</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.view}>
+              <Text style={styles.mainText}>
+                {"\n"}
+                If you are a returning user please log in to access your account
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Profile")}
+                style={styles.button}
+              >
+                <Text style={styles.mainText}>Login Here</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </ScrollView>

@@ -11,9 +11,11 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { useState, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const RegistrationScreen = () => {
   const { signUp, user } = useAuth();
+  const navigation = useNavigation();
 
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
@@ -25,9 +27,6 @@ const RegistrationScreen = () => {
   const [email, setEmail] = useState("");
 
   const handleSignup = async () => {
-    // Call the signUp function from AuthContext
-    await signUp(username, password, email);
-
     // Basic validation
     //If the passwords do not match, alert the user and return
     if (password !== confirmPassword) {
@@ -47,6 +46,10 @@ const RegistrationScreen = () => {
       alert("Password must be at least 5 characters long");
       return;
     }
+
+    // Call the signUp function from AuthContext
+    await signUp(username, password, email);
+
     // Save user data to AsyncStorage
     try {
       await AsyncStorage.setItem(
@@ -161,7 +164,15 @@ const RegistrationScreen = () => {
             keyboardType="email-address"
             returnKeyType="done"
           />
-          <TouchableOpacity onPress={handleSignup} style={styles.textInput}>
+          <TouchableOpacity
+            onPress={async () => {
+              const result = await handleSignup();
+              if (result) {
+                navigation.navigate("Main", { screen: "Home" });
+              }
+            }}
+            style={styles.textInput}
+          >
             <Text>Sign Up</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={checkAccount} style={styles.textInput}>

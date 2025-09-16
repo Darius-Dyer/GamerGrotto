@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../auth/AuthContext";
 
 const ProfileScreen = () => {
-  const { user, signIn } = useAuth();
+  const { user, signIn, checkAccount, signOut } = useAuth();
 
   const handleLogin = async () => {
     const successLogin = await signIn(username, password);
@@ -23,13 +23,20 @@ const ProfileScreen = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    alert("Logged out successfully");
+  };
+
+  const checkStoredAccount = async () => {
+    await checkAccount();
+    alert("Check console for stored account data.");
+  };
+
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
-  const emailRef = useRef();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
 
   return (
     <View
@@ -78,28 +85,23 @@ const ProfileScreen = () => {
           onSubmitEditing={() => confirmPasswordRef.current.focus()}
           submitBehavior="submit"
         />
-        <TouchableOpacity
-          onPress={handleLogin}
-          style={{
-            alignItems: "center",
-            backgroundColor: "#DDDDDD",
-            padding: 10,
-            marginTop: 10,
-          }}
-        >
+        <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text>Log In</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={async () => {
-            const account = await AsyncStorage.getItem(`user_${username}`);
-            if (account) {
-              console.log("Stored account data:", JSON.parse(account));
-              alert("Check console for stored account data.");
-            } else {
-              console.log("No account data found.");
-              alert("No account data found.");
-            }
-          }}
+          onPress={
+            checkStoredAccount
+            //   async () => {
+            //   const account = await AsyncStorage.getItem(`user_${username}`);
+            //   if (account) {
+            //     console.log("Stored account data:", JSON.parse(account));
+            //     alert("Check console for stored account data.");
+            //   } else {
+            //     console.log("No account data found.");
+            //     alert("No account data found.");
+            //   }
+            // }
+          }
           style={{
             alignItems: "center",
             backgroundColor: "#FFD700",
@@ -109,8 +111,8 @@ const ProfileScreen = () => {
         >
           <Text>Debug: Show Stored Account</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Text>Log Out (Not Implemented){"\n"}</Text>
+        <TouchableOpacity onPress={handleSignOut} style={styles.button}>
+          <Text>Log Out</Text>
         </TouchableOpacity>
         <Text style={styles.text}>
           Note: This is a mock login screen. No real authentication is
@@ -139,6 +141,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     fontSize: 18,
     textAlign: "center",
+  },
+  button: {
+    backgroundColor: "#FF6347",
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 5,
+    shadowColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 export default ProfileScreen;
