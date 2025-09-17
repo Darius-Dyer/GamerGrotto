@@ -1,20 +1,94 @@
-import { Text, View, StyleSheet, Keyboard, ScrollView } from "react-native";
-import { useState } from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  ScrollView,
+  FlatList,
+} from "react-native";
+import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "@rneui/themed";
+import { Icon } from "@rneui/base";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import axios from "axios";
+import debounce from "lodash.debounce";
 
 const ShelfScreen = () => {
   const [search, setSearch] = useState("");
+  const [searchedGame, setSearchedGame] = useState(null);
+  const [selectedGameId, setSelectedGameId] = useState(null);
+  const [gameAchievement, setGameAchievement] = useState(null);
+  const [gameScreenShots, setGameScreenShots] = useState(null);
+
+  const SERVER_URL = "http://192.168.56.1:3000"; // Replace with your server's IP address and port
+  //Function Meant for game Search API call
+  const handleGameSearch = useCallback(
+    //Debounce Used to limit invocation
+    //Search is passed into a try and catch conditional, await axios API call, and then set setSelectedGame to that response
+    debounce(async (search) => {
+      try {
+        const resp = await axios.get(
+          `${SERVER_URL}/api/games/search?s=${search}`
+        );
+        setSearchedGame(resp.data);
+        console.log("Search Response:", resp.data);
+      } catch (err) {
+        console.log(
+          "Could Not complete the API Request for Game Search:" + err
+        );
+      }
+    }, 500),
+    []
+  );
+
   const updateSearch = (search) => {
-    setSearch({ search });
+    setSearch(search);
+    handleGameSearch(search);
   };
 
+  useEffect(() => {
+    if (selectedGameId) {
+      axios
+        .get(`${SERVER_URL}/api/games/achievements?id=${selectedGameId}`)
+        .then((response) => {
+          setGameAchievement(response.data);
+          console.log("Achievements Response:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching achievements:", error);
+        });
+
+      axios
+        .get(`${SERVER_URL}/api/games/screenshots?game_pk=${selectedGameId}`)
+        .then((response) => {
+          setGameScreenShots(response.data);
+          console.log("Screenshots Response:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching screenshots:", error);
+        });
+    }
+  }, [selectedGameId]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.titleText}>Shelf Screen</Text>
+    <KeyboardAvoidingView
+      contentContainerStyle={{ flex: 1 }}
+      style={styles.container}
+      behavior="padding"
+    >
       <Text style={styles.mainText}>
-        On this screen you may add any game from the database and, view all of
-        th games from your personal shelf.
+        In the Search Bar please enter the name of a game you would like to add
+        to your shelf.
       </Text>
+      <SearchBar
+        placeholder="Enter Game Here"
+        platform="android"
+        searchIcon={null}
+        clearIcon={null}
+        style={styles.searchBarStyle}
+        value={search}
+        onChangeText={updateSearch}
+      />
       <ScrollView
         style={styles.mainView}
         contentContainerStyle={{
@@ -23,18 +97,21 @@ const ShelfScreen = () => {
           alignContent: "center",
         }}
       >
-        <SearchBar
-          placeholder="Enter Game Here"
-          onChangeText={updateSearch}
-          value={search}
-          platform="android"
-          rounded
-          style={styles.searchBarStyle}
-        />
-        <Text style={styles.mainText}>Search Results:</Text>
-        {/* Add code here to display search results and allow adding to shelf */}
+        {searchedGame && searchedGame.results && (
+          <View>
+            {searchedGame.results.map((game) => (
+              <Text
+                key={game.id}
+                style={styles.gameText}
+                onPress={() => setSelectedGameId(game.id)}
+              >
+                {game.name}
+              </Text>
+            ))}
+          </View>
+        )}
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 const styles = StyleSheet.create({
@@ -48,21 +125,30 @@ const styles = StyleSheet.create({
   },
   titleText: {
     textAlign: "center",
-    margin: 20,
+    margin: 5,
     fontSize: 30,
   },
   mainText: {
     textAlign: "center",
-    margin: 10,
-    fontSize: 20,
+    margin: 5,
+    fontSize: 17,
+    fontWeight: "bold",
+  },
+  gameText: {
+    textAlign: "center",
+    borderColor: "black",
+    borderWidth: 5,
+    margin: 5,
+    fontSize: 15,
     fontWeight: "bold",
   },
   searchBarStyle: {
     height: 20,
-    borderRadius: 50,
-    margin: 10,
+    borderRadius: 10,
+    margin: 5,
+
     backgroundColor: "#ADD8E6",
-    width: 300,
+    width: 250,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
