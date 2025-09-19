@@ -5,70 +5,74 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   FlatList,
+  Button,
+  TouchableOpacity,
 } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "@rneui/themed";
 import { Icon } from "@rneui/base";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import axios from "axios";
 import debounce from "lodash.debounce";
+import { getGames } from "../services/games";
+import { get } from "axios";
 
 const ShelfScreen = () => {
   const [search, setSearch] = useState("");
-  const [searchedGame, setSearchedGame] = useState(null);
+  const [searchedGame, setSearchedGame] = useState([]);
   const [selectedGameId, setSelectedGameId] = useState(null);
-  const [gameAchievement, setGameAchievement] = useState(null);
-  const [gameScreenShots, setGameScreenShots] = useState(null);
 
-  const SERVER_URL = "http://192.168.56.1:3000"; // Replace with your server's IP address and port
-  //Function Meant for game Search API call
-  const handleGameSearch = useCallback(
-    //Debounce Used to limit invocation
-    //Search is passed into a try and catch conditional, await axios API call, and then set setSelectedGame to that response
-    debounce(async (search) => {
-      try {
-        const resp = await axios.get(
-          `${SERVER_URL}/api/games/search?s=${search}`
-        );
-        setSearchedGame(resp.data);
-        console.log("Search Response:", resp.data);
-      } catch (err) {
-        console.log(
-          "Could Not complete the API Request for Game Search:" + err
-        );
-      }
-    }, 500),
-    []
-  );
-
-  const updateSearch = (search) => {
-    setSearch(search);
-    handleGameSearch(search);
+  const fetchGames = async () => {
+    const data = await getGames();
+    if (data) setSearchedGame(data);
   };
 
-  useEffect(() => {
-    if (selectedGameId) {
-      axios
-        .get(`${SERVER_URL}/api/games/achievements?id=${selectedGameId}`)
-        .then((response) => {
-          setGameAchievement(response.data);
-          console.log("Achievements Response:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching achievements:", error);
-        });
+  //Function Meant for game Search API call
+  // const handleGameSearch = useCallback(
+  //   //Debounce Used to limit invocation
+  //   //Search is passed into a try and catch conditional, await axios API call, and then set setSelectedGame to that response
+  //   debounce(async (search) => {
+  //     try {
+  //       const resp = await axios.get(
+  //         `${SERVER_URL}/api/games/search?s=${search}`
+  //       );
+  //       setSearchedGame(resp.data);
+  //       console.log("Search Response:", resp.data);
+  //     } catch (err) {
+  //       console.log(
+  //         "Could Not complete the API Request for Game Search:" + err
+  //       );
+  //     }
+  //   }, 500),
+  //   []
+  // );
 
-      axios
-        .get(`${SERVER_URL}/api/games/screenshots?game_pk=${selectedGameId}`)
-        .then((response) => {
-          setGameScreenShots(response.data);
-          console.log("Screenshots Response:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching screenshots:", error);
-        });
-    }
-  }, [selectedGameId]);
+  // const updateSearch = (search) => {
+  //   setSearch(search);
+  //   handleGameSearch(search);
+  // };
+
+  // useEffect(() => {
+  //   if (selectedGameId) {
+  //     axios
+  //       .get(`${SERVER_URL}/api/games/achievements?id=${selectedGameId}`)
+  //       .then((response) => {
+  //         setGameAchievement(response.data);
+  //         console.log("Achievements Response:", response.data);
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching achievements:", error);
+  //       });
+
+  //     axios
+  //       .get(`${SERVER_URL}/api/games/screenshots?game_pk=${selectedGameId}`)
+  //       .then((response) => {
+  //         setGameScreenShots(response.data);
+  //         console.log("Screenshots Response:", response.data);
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching screenshots:", error);
+  //       });
+  //   }
+  // }, [selectedGameId]);
 
   return (
     <KeyboardAvoidingView
@@ -80,7 +84,8 @@ const ShelfScreen = () => {
         In the Search Bar please enter the name of a game you would like to add
         to your shelf.
       </Text>
-      <SearchBar
+
+      {/* <SearchBar
         placeholder="Enter Game Here"
         platform="android"
         searchIcon={null}
@@ -88,6 +93,12 @@ const ShelfScreen = () => {
         style={styles.searchBarStyle}
         value={search}
         onChangeText={updateSearch}
+      /> */}
+      <Button title="Fetch Games" onPress={fetchGames} />
+      <FlatList
+        data={searchedGame}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => <Text>{item.name}</Text>}
       />
       <ScrollView
         style={styles.mainView}
@@ -97,7 +108,12 @@ const ShelfScreen = () => {
           alignContent: "center",
         }}
       >
-        {searchedGame && searchedGame.results && (
+        {searchedGame.map((game) => (
+          <Text key={game.id} style={styles.gameText}>
+            {game.name}
+          </Text>
+        ))}
+        {/* {searchedGame && searchedGame.results && (
           <View>
             {searchedGame.results.map((game) => (
               <Text
@@ -109,7 +125,7 @@ const ShelfScreen = () => {
               </Text>
             ))}
           </View>
-        )}
+        )} */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
