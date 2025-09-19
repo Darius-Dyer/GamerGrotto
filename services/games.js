@@ -1,10 +1,10 @@
 import axios from "axios";
 import React, { useState, useEffect, useCallback } from "react";
 
-export const getGames = async () => {
+export const getGames = async (search) => {
   try {
     const response = await axios.get(
-      "http://192.168.0.230:3000/api/games/search?s=Halo"
+      `http://192.168.0.230:3000/api/games/search?search=${search}&search_exact=true`
     );
     console.log(response.data);
     return response.data;

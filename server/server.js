@@ -13,10 +13,8 @@ const RAWG_KEY = process.env.RAWG_KEY;
 
 //Endpoint to search for games
 app.get("/api/games/search", async (req, res) => {
-  const search = req.query.s || "Halo";
-
   const resp = await fetch(
-    `https://api.rawg.io/api/games?search=${search}&key=${RAWG_KEY}`
+    `https://api.rawg.io/api/games?search=${req.query.search}&search_exact=true&key=${RAWG_KEY}`
   );
   // Handle 404 and other errors
   if (resp.status === 404) {
@@ -31,8 +29,16 @@ app.get("/api/games/search", async (req, res) => {
 
   // If the response is successful, parse and return the data
   const data = await resp.json();
-  const filter = data.results.filter((game) => game.rating > 4.0);
-  console.log("Filtered Data:", filter);
+  console.log("RAWG full response keys:", Object.keys(data));
+  console.log("First game:", data.results[0]);
+  const filter = data.results.filter(
+    (game) =>
+      game.name &&
+      !game.name.toLowerCase().includes("undefined") && // remove ".undefined"
+      game.background_image && // must have image
+      game.rating > 0 && // must have rating
+      game.ratings_count > 0
+  );
   res.json(filter);
 });
 

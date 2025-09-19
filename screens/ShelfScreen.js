@@ -1,6 +1,6 @@
 import {
   Text,
-  View,
+  Image,
   StyleSheet,
   KeyboardAvoidingView,
   ScrollView,
@@ -8,22 +8,33 @@ import {
   Button,
   TouchableOpacity,
 } from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { SearchBar } from "@rneui/themed";
 import { Icon } from "@rneui/base";
 import debounce from "lodash.debounce";
 import { getGames } from "../services/games";
-import { get } from "axios";
 
 const ShelfScreen = () => {
   const [search, setSearch] = useState("");
   const [searchedGame, setSearchedGame] = useState([]);
-  const [selectedGameId, setSelectedGameId] = useState(null);
 
   const fetchGames = async () => {
     const data = await getGames();
     if (data) setSearchedGame(data);
   };
+
+  const searchForGames = useMemo(
+    () =>
+      debounce(async (text) => {
+        try {
+          const data = await getGames(text);
+          setSearchedGame(data);
+        } catch (error) {
+          console.log("Error With Search: " + error);
+        }
+      }, 2000),
+    []
+  );
 
   //Function Meant for game Search API call
   // const handleGameSearch = useCallback(
@@ -94,11 +105,51 @@ const ShelfScreen = () => {
         value={search}
         onChangeText={updateSearch}
       /> */}
-      <Button title="Fetch Games" onPress={fetchGames} />
+      <SearchBar
+        placeholder="Search For a Game Here"
+        clearIcon={false}
+        searchIcon={null}
+        value={search}
+        onChangeText={(text) => {
+          setSearch(text);
+          searchForGames(text);
+        }}
+      />
+      {/* <Button title="Fetch Games" onPress={fetchGames} /> */}
       <FlatList
         data={searchedGame}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <Text>{item.name}</Text>}
+        renderItem={({ item }) => (
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: "center",
+              alignContent: "center",
+              alignSelf: "center",
+            }}
+            style={styles.gameContainer}
+          >
+            <TouchableOpacity>
+              <Image
+                source={{ uri: item.background_image }}
+                style={styles.gameImage}
+              />
+              <Text style={styles.gameText}>
+                {item.name}
+                {"\n"}
+              </Text>
+              <Text style={styles.gameText}>
+                {`Rating: ${item.rating} from ${item.ratings_count} votes. ${
+                  item.rating < 2
+                    ? "This game is not reviewed favourably."
+                    : "This game is reviewed favourably."
+                }`}
+              </Text>
+              {"\n"}
+              <Text style={styles.gameText}>Released on: {item.released}</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        )}
       />
       <ScrollView
         style={styles.mainView}
@@ -107,26 +158,7 @@ const ShelfScreen = () => {
           justifyContent: "center",
           alignContent: "center",
         }}
-      >
-        {searchedGame.map((game) => (
-          <Text key={game.id} style={styles.gameText}>
-            {game.name}
-          </Text>
-        ))}
-        {/* {searchedGame && searchedGame.results && (
-          <View>
-            {searchedGame.results.map((game) => (
-              <Text
-                key={game.id}
-                style={styles.gameText}
-                onPress={() => setSelectedGameId(game.id)}
-              >
-                {game.name}
-              </Text>
-            ))}
-          </View>
-        )} */}
-      </ScrollView>
+      ></ScrollView>
     </KeyboardAvoidingView>
   );
 };
@@ -150,33 +182,44 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "bold",
   },
+  gameContainer: {
+    margin: 15,
+    borderColor: "black",
+    border: 10,
+    borderWidth: 2.5,
+    backgroundColor: "#D3D3D3",
+  },
   gameText: {
     textAlign: "center",
-    borderColor: "black",
-    borderWidth: 5,
-    margin: 5,
-    fontSize: 15,
+    margin: 1.5,
+    fontSize: 17,
     fontWeight: "bold",
+    alignSelf: "center",
+  },
+  gameImage: {
+    width: 250,
+    height: 250,
+    alignSelf: "center",
+    margin: 10,
   },
   searchBarStyle: {
     height: 20,
     borderRadius: 10,
     margin: 5,
-
-    backgroundColor: "#ADD8E6",
-    width: 250,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    padding: 10,
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
   },
+  backgroundColor: "#ADD8E6",
+  width: 250,
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+  padding: 10,
+  fontSize: 20,
+  fontWeight: "bold",
+  textAlign: "center",
 });
 export default ShelfScreen;
