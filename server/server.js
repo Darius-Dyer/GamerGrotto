@@ -27,10 +27,10 @@ app.get("/api/games/search", async (req, res) => {
     return res.status(resp.status).json({ error: "Failed to fetch games." });
   }
 
-  // If the response is successful, parse and return the data
+  // If the response is successful, parse and return the data.
   const data = await resp.json();
-  console.log("RAWG full response keys:", Object.keys(data));
-  console.log("First game:", data.results[0]);
+
+  //Filter to make sure the games could pass as actually legitimate.
   const filter = data.results.filter(
     (game) =>
       game.name &&
@@ -43,61 +43,61 @@ app.get("/api/games/search", async (req, res) => {
 });
 
 //Endpoint to get game details by ID
-// app.get("/api/games/details", async (req, res) => {
-//   const resp = await fetch(
-//     `https://api.rawg.io/api/games/${req.query.id}?key=${RAWG_KEY}`
-//   );
-//   const data = await resp.json();
-//   res.json(data);
-// });
+app.get("/api/games/details", async (req, res) => {
+  const resp = await fetch(
+    `https://api.rawg.io/api/games/${req.query.id}?key=${RAWG_KEY}`
+  );
+  const data = await resp.json();
+  res.json(data);
+});
 
-// //Endpoint to get game screenshots by game ID
-// app.get("/api/games/screenshots", async (req, res) => {
-//   const resp = await fetch(
-//     `https://api.rawg.io/api/games/${req.query.game_pk}/screenshots?key=${RAWG_KEY}`
-//   );
+//Endpoint to get game screenshots by game ID
+app.get("/api/games/screenshots", async (req, res) => {
+  const resp = await fetch(
+    `https://api.rawg.io/api/games/${req.query.game_pk}/screenshots?key=${RAWG_KEY}`
+  );
 
-//   // Handle 404 and other errors
-//   if (resp.status === 404) {
-//     return res
-//       .status(404)
-//       .json({ error: "Screenshots not found for this game." });
-//   } else if (!resp.ok) {
-//     return res
-//       .status(resp.status)
-//       .json({ error: "Failed to fetch screenshots." });
-//   }
+  // Handle 404 and other errors
+  if (resp.status === 404) {
+    return res
+      .status(404)
+      .json({ error: "Screenshots not found for this game." });
+  } else if (!resp.ok) {
+    return res
+      .status(resp.status)
+      .json({ error: "Failed to fetch screenshots." });
+  }
 
-//   // If the response is successful, parse and return the data
-//   const data = await resp.json();
-//   res.json(data);
-// });
+  // If the response is successful, parse and return the data
+  const data = await resp.json();
+  res.json(data);
+});
 
-// //Endpoint to get game achievements by game ID
-// app.get("/api/games/achievements", async (req, res, next) => {
-//   const resp = await fetch(
-//     `https://api.rawg.io/api/games/${req.query.id}/achievements?key=${RAWG_KEY}`
-//   );
+//Endpoint to get game achievements by game ID
+app.get("/api/games/achievements", async (req, res, next) => {
+  const resp = await fetch(
+    `https://api.rawg.io/api/games/${req.query.id}/achievements?key=${RAWG_KEY}`
+  );
 
-//   // Handle 404 and other errors
-//   if (resp.status === 404) {
-//     return res
-//       .status(404)
-//       .json({ error: "Achievements not found for this game." });
-//   } else if (resp.status !== 200) {
-//     return res
-//       .status(resp.status)
-//       .json({ error: "Failed to fetch achievements." });
-//   } else if (!resp.ok) {
-//     return res
-//       .status(resp.status)
-//       .json({ error: "Failed to fetch achievements." });
-//   }
+  // Handle 404 and other errors
+  if (resp.status === 404) {
+    return res
+      .status(404)
+      .json({ error: "Achievements not found for this game." });
+  } else if (resp.status !== 200) {
+    return res
+      .status(resp.status)
+      .json({ error: "Failed to fetch achievements." });
+  } else if (!resp.ok) {
+    return res
+      .status(resp.status)
+      .json({ error: "Failed to fetch achievements." });
+  }
 
-//   // If the response is successful, parse and return the data
-//   const data = await resp.json();
-//   res.json(data);
-// });
+  // If the response is successful, parse and return the data
+  const data = await resp.json();
+  res.json(data);
+});
 
 // Start the server
 app.listen(port, () => {

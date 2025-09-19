@@ -8,6 +8,7 @@ import ShelfScreen from "../screens/ShelfScreen";
 import RegistrationScreen from "../screens/RegistrationScreen";
 import { useAuth } from "../auth/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DisplayScreen from "../screens/DisplayScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -38,6 +39,7 @@ const RootNavigation = () => (
         options={{ headerShown: false, headerTitleAlign: "center" }}
       />
       <Stack.Screen name="Registration" component={RegistrationScreen} />
+      <Stack.Screen name="Display" component={DisplayScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );

@@ -13,7 +13,17 @@ export const getGames = async (search) => {
   }
 };
 
-export const getGameDetails = () => {};
+export const getGameDetails = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://192.168.0.230:3000/api/games/details?id=${id}`
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error Fetching Game Detail Data:" + error);
+  }
+};
 
 export const getGameScreenshots = () => {};
 

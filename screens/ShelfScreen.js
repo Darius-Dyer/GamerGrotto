@@ -5,16 +5,17 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   FlatList,
-  Button,
   TouchableOpacity,
 } from "react-native";
 import { useMemo, useState } from "react";
 import { SearchBar } from "@rneui/themed";
-import { Icon } from "@rneui/base";
 import debounce from "lodash.debounce";
+import { useNavigation } from "@react-navigation/native";
 import { getGames } from "../services/games";
 
 const ShelfScreen = () => {
+  const navigation = useNavigation();
+
   const [search, setSearch] = useState("");
   const [searchedGame, setSearchedGame] = useState([]);
 
@@ -129,7 +130,9 @@ const ShelfScreen = () => {
             }}
             style={styles.gameContainer}
           >
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Display", { id: item.id })}
+            >
               <Image
                 source={{ uri: item.background_image }}
                 style={styles.gameImage}
@@ -137,14 +140,9 @@ const ShelfScreen = () => {
               <Text style={styles.gameText}>
                 {item.name}
                 {"\n"}
+                {item.id}
               </Text>
-              <Text style={styles.gameText}>
-                {`Rating: ${item.rating} from ${item.ratings_count} votes. ${
-                  item.rating < 2
-                    ? "This game is not reviewed favourably."
-                    : "This game is reviewed favourably."
-                }`}
-              </Text>
+              <Text style={styles.gameText}>Current Rating: {item.rating}</Text>
               {"\n"}
               <Text style={styles.gameText}>Released on: {item.released}</Text>
             </TouchableOpacity>

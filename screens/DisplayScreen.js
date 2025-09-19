@@ -1,11 +1,44 @@
-import { View, Text } from "react-native";
+import { View, Text, Button, ScrollView } from "react-native";
+import { getGameDetails } from "../services/games";
+import { useEffect, useState } from "react";
 
-const DisplayScreen = () => {
+const DisplayScreen = ({ route }) => {
+  const { id } = route.params;
+
+  const [gameData, setGameData] = useState(null);
+
+  const getGameData = async () => {
+    try {
+      const data = await getGameDetails(id);
+      if (data) setGameData(data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      getGameData();
+    }
+  }, [id]);
+
   return (
-    <View style={{ flex: 1, centerItems: "center", justifyContent: "center" }}>
+    <ScrollView
+      contentContainerStyle={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Text>Display Screen</Text>
-      <Text>Hello</Text>
-    </View>
+
+      {/* show description if available */}
+      {gameData ? (
+        <Text>{gameData.description_raw}</Text>
+      ) : (
+        <Text>Loading...</Text>
+      )}
+    </ScrollView>
   );
 };
 
