@@ -48,6 +48,12 @@ app.get("/api/games/details", async (req, res) => {
     `https://api.rawg.io/api/games/${req.query.id}?key=${RAWG_KEY}`
   );
   const data = await resp.json();
+  console.log(
+    data.achievements_count,
+    data.background_image,
+    data.background_image
+  );
+
   res.json(data);
 });
 
@@ -74,7 +80,7 @@ app.get("/api/games/screenshots", async (req, res) => {
 });
 
 //Endpoint to get game achievements by game ID
-app.get("/api/games/achievements", async (req, res, next) => {
+app.get("/api/games/achievements", async (req, res) => {
   const resp = await fetch(
     `https://api.rawg.io/api/games/${req.query.id}/achievements?key=${RAWG_KEY}`
   );
@@ -96,7 +102,14 @@ app.get("/api/games/achievements", async (req, res, next) => {
 
   // If the response is successful, parse and return the data
   const data = await resp.json();
-  res.json(data);
+
+  const filteredInfo = data.results.map((ach) => ({
+    name: ach.name,
+    description: ach.description,
+  }));
+  console.log(filteredInfo);
+
+  res.json(filteredInfo);
 });
 
 // Start the server

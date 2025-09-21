@@ -6,6 +6,7 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { useMemo, useState } from "react";
 import { SearchBar } from "@rneui/themed";
@@ -14,6 +15,8 @@ import { useNavigation } from "@react-navigation/native";
 import { getGames } from "../services/games";
 
 const ShelfScreen = () => {
+  const { width } = Dimensions.get("window");
+
   const navigation = useNavigation();
 
   const [search, setSearch] = useState("");
@@ -135,15 +138,15 @@ const ShelfScreen = () => {
             >
               <Image
                 source={{ uri: item.background_image }}
-                style={styles.gameImage}
+                style={{
+                  width: width * 0.9,
+                  height: width * 0.5,
+                  resizeMode: "contain",
+                  alignSelf: "center",
+                }}
               />
-              <Text style={styles.gameText}>
-                {item.name}
-                {"\n"}
-                {item.id}
-              </Text>
+              <Text style={styles.gameText}>{item.name}</Text>
               <Text style={styles.gameText}>Current Rating: {item.rating}</Text>
-              {"\n"}
               <Text style={styles.gameText}>Released on: {item.released}</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -195,10 +198,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   gameImage: {
-    width: 250,
-    height: 250,
     alignSelf: "center",
-    margin: 10,
+    resizeMode: "contain",
   },
   searchBarStyle: {
     height: 20,
