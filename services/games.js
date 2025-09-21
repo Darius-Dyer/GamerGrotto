@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 export const getGames = async (search) => {
   try {
     const response = await axios.get(
-      `http://192.168.0.230:3000/api/games/search?search=${search}&search_precise=true`
+      `http://192.168.0.230:3000/api/games/search?search=${search}`
     );
     //console.log(response.data);
     return response.data;
@@ -25,14 +25,23 @@ export const getGameDetails = async (id) => {
   }
 };
 
-export const getGameScreenshots = async (id) => {};
+export const getGameScreenshots = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://192.168.0.230:3000/api/games/screenshots?game_pk=${id}`
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error Fetching Game Screenshots:" + error);
+  }
+};
 
 export const getGameAchievements = async (id) => {
   try {
     const response = await axios.get(
       `http://192.168.0.230:3000/api/games/achievements?id=${id}`
     );
-    console.log(response.data.name);
     return response.data;
   } catch (error) {
     console.error("Error Fetching Game Achievements: " + error);

@@ -1,4 +1,11 @@
-import { StyleSheet, Text, Image, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  FlatList,
+  Image,
+  View,
+  ScrollView,
+} from "react-native";
 import {
   getGameDetails,
   getGameAchievements,
@@ -8,79 +15,174 @@ import { useEffect, useState } from "react";
 
 const DisplayScreen = ({ route }) => {
   const { id } = route.params;
+  const [isLoading, setLoading] = useState(null);
+  const [error, setError] = useState(null);
 
   const [gameData, setGameData] = useState(null);
-  const [gameAchievements, setGameAchievements] = useState(null);
+  const [gameAchievements, setGameAchievements] = useState([]);
+  const [gameScreenShots, setGameScreenShots] = useState([]);
 
   const getGameData = async () => {
     try {
+      setLoading(true);
       const data = await getGameDetails(id);
       const achievements = await getGameAchievements(id);
+      const screenshots = await getGameScreenshots(id);
       if (data) {
         setGameData(data);
-        setGameAchievements(achievements);
+        setGameAchievements(achievements.results);
+        setGameScreenShots(screenshots.results);
       }
     } catch (error) {
+      setError(error.message || "Something Went Wrong");
       console.error("Fetch error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (id) {
       getGameData();
-      getGameAchievements();
     }
   }, [id]);
 
   return (
     <>
+      {isLoading && <Text>Loading...</Text>}
+      {error && <Text>{error}</Text>}
+
       {gameData ? (
-        <ScrollView contentContainerStyle={{ alignItems: "center" }}>
-          <Text style={styles.gameTitleText}>{gameData.name}</Text>
-          <Text style={styles.gameDescriptionText}>
-            {gameData.description_raw}
-          </Text>
-          <Text>{gameData.metacritic}</Text>
-          <Text>{gameData.released}</Text>
-          <Text>{gameAchievements.name}</Text>
-          {gameData?.background_image && (
+        <>
+          <ScrollView contentContainerStyle={{ alignItems: "center" }}>
+            <View style={{ height: 200, marginVertical: 10 }}>
+              {gameScreenShots && gameScreenShots.length > 0 ? (
+                <FlatList
+                  data={gameScreenShots}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                    <Image
+                      source={{ uri: item.image }}
+                      style={styles.gameImageScreenShot}
+                      resizeMode="cover"
+                    />
+                  )}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  nestedScrollEnabled
+                  contentContainerStyle={styles.screenshotRow}
+                />
+              ) : (
+                gameData?.background_image && (
+                  <Image
+                    source={{ uri: gameData.background_image }}
+                    style={styles.gameImageFallback}
+                    resizeMode="cover"
+                  />
+                )
+              )}
+            </View>
+
+            <Text style={styles.gameTitleText}>{gameData.name}</Text>
+
+            {/*{gameData?.background_image && (
             <Image
               source={{ uri: gameData.background_image }}
               style={styles.gameImage}
+              resizeMode="cover"
             />
-          )}
-        </ScrollView>
+          )}*/}
+            <Text style={styles.gameDescriptionText}>
+              {gameData.description_raw}
+            </Text>
+            <Text>The Current Metacritic Score: {gameData.metacritic}</Text>
+            <Text>Released: {gameData.released}</Text>
+            <View style={styles.gameAchievementsContainer}>
+              <Text style={styles.gameAchievementsTitle}>
+                Achievements{"\n"}
+              </Text>
+              {gameAchievements.map((ach, index) => (
+                <Text key={index} style={styles.gameAchievementsText}>
+                  Name: {ach.name} {"\n"}Description: {ach.description}
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        </>
       ) : (
-        <ScrollView
-          contentContainerStyle={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text>No Data Avalianble</Text>
-        </ScrollView>
+        !isLoading &&
+        !error && (
+          <ScrollView
+            contentContainerStyle={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text>No Data Available</Text>
+          </ScrollView>
+        )
       )}
     </>
   );
 };
 const styles = StyleSheet.create({
-  ScrollView: {},
   gameTitleText: {
-    margin: 20,
+    marginTop: 5,
+    marginBottom: 12, // space before the description or image
     textAlign: "center",
-    fontSize: 25,
+    fontSize: 26,
+    fontWeight: "700", // bold, but crisper than "bold"
+    color: "#000000ff", // white (works well with dark background)
+    letterSpacing: 0.5,
+  },
+  screenshotRow: {
+    paddingHorizontal: 10,
   },
   gameDescriptionText: {
+    marginHorizontal: 20, // breathing room on the sides
+    marginBottom: 20, // space before the next section
+    textAlign: "center", // centered for symmetry, or "left" for readability
+    fontSize: 16,
+    lineHeight: 22, // improves readability on longer blocks
+    color: "#000000ff",
+  },
+  gameImageScreenShot: {
+    margin: 20,
+    aspectRatio: 16 / 9,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#222",
+    width: 300,
+    height: 300,
+    backgroundColor: "#222",
+    alignSelf: "center",
+  },
+  gameImageFallback: {
+    margin: 20,
+    aspectRatio: 16 / 9,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#222",
+    width: 170,
+    height: 170,
+    backgroundColor: "#222",
+    alignSelf: "center",
+  },
+  gameAchievementsContainer: {
+    borderRadius: 5,
+    borderWidth: 5,
+    borderColor: "teal",
+    padding: 5,
+    margin: 10,
+  },
+  gameAchievementsTitle: { fontSize: 25, margin: 7, textAlign: "center" },
+
+  gameAchievementsText: {
+    fontSize: 20,
+    fontWeight: "bold",
     margin: 10,
     textAlign: "center",
-    fontSize: 20,
-  },
-  gameImage: {
-    width: 200,
-    height: 200,
-    alignSelf: "center",
-    objectFit: "fill",
   },
 });
 export default DisplayScreen;

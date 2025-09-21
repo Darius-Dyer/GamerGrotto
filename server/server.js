@@ -76,6 +76,7 @@ app.get("/api/games/screenshots", async (req, res) => {
 
   // If the response is successful, parse and return the data
   const data = await resp.json();
+  console.log(data);
   res.json(data);
 });
 
@@ -103,13 +104,9 @@ app.get("/api/games/achievements", async (req, res) => {
   // If the response is successful, parse and return the data
   const data = await resp.json();
 
-  const filteredInfo = data.results.map((ach) => ({
-    name: ach.name,
-    description: ach.description,
-  }));
-  console.log(filteredInfo);
+  console.log(data.results[0]);
 
-  res.json(filteredInfo);
+  res.json(data);
 });
 
 // Start the server
