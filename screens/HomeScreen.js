@@ -38,6 +38,7 @@ const HomeScreen = () => {
               >
                 <Text style={styles.mainText}>Go to Profile</Text>
               </TouchableOpacity>
+              <Text>You currently have saved games.</Text>
             </View>
           </View>
         ) : (

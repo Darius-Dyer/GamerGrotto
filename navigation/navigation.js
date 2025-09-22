@@ -39,7 +39,7 @@ const RootNavigation = () => (
         options={{ headerShown: false, headerTitleAlign: "center" }}
       />
       <Stack.Screen name="Registration" component={RegistrationScreen} />
-      <Stack.Screen name="Display" component={DisplayScreen} />
+      <Stack.Screen name="Game Details" component={DisplayScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );

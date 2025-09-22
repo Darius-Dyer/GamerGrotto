@@ -134,7 +134,9 @@ const ShelfScreen = () => {
             style={styles.gameContainer}
           >
             <TouchableOpacity
-              onPress={() => navigation.navigate("Display", { id: item.id })}
+              onPress={() =>
+                navigation.navigate("Game Details", { id: item.id })
+              }
             >
               <Image
                 source={{ uri: item.background_image }}

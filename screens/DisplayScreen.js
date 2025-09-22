@@ -5,15 +5,19 @@ import {
   Image,
   View,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import {
   getGameDetails,
   getGameAchievements,
   getGameScreenshots,
 } from "../services/games";
+import { useAuth } from "../auth/AuthContext";
 import { useEffect, useState } from "react";
 
 const DisplayScreen = ({ route }) => {
+  const { checkSavedGames, addGames, removeGames } = useAuth();
+
   const { id } = route.params;
   const [isLoading, setLoading] = useState(null);
   const [error, setError] = useState(null);
@@ -41,6 +45,8 @@ const DisplayScreen = ({ route }) => {
     }
   };
 
+  const inLibrary = gameData ? checkSavedGames(gameData.id) : false;
+
   useEffect(() => {
     if (id) {
       getGameData();
@@ -53,62 +59,78 @@ const DisplayScreen = ({ route }) => {
       {error && <Text>{error}</Text>}
 
       {gameData ? (
-        <>
-          <ScrollView contentContainerStyle={{ alignItems: "center" }}>
-            <View style={{ height: 200, marginVertical: 10 }}>
-              {gameScreenShots && gameScreenShots.length > 0 ? (
-                <FlatList
-                  data={gameScreenShots}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                    <Image
-                      source={{ uri: item.image }}
-                      style={styles.gameImageScreenShot}
-                      resizeMode="cover"
-                    />
-                  )}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  nestedScrollEnabled
-                  contentContainerStyle={styles.screenshotRow}
-                />
-              ) : (
-                gameData?.background_image && (
+        <ScrollView contentContainerStyle={{ alignItems: "center" }}>
+          {/* Save / Remove button */}
+          {inLibrary ? (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => removeGames(gameData.id, gameData.name)}
+            >
+              <Text>
+                This Game is Already in your Library, Would you like to remove
+                it?
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => addGames(gameData.id, gameData.name)}
+            >
+              <Text>Would You Like to Save This Game?</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Game screenshots */}
+          <View style={{ height: 200, marginVertical: 10 }}>
+            {gameScreenShots && gameScreenShots.length > 0 ? (
+              <FlatList
+                data={gameScreenShots}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
                   <Image
-                    source={{ uri: gameData.background_image }}
-                    style={styles.gameImageFallback}
+                    source={{ uri: item.image }}
+                    style={styles.gameImageScreenShot}
                     resizeMode="cover"
                   />
-                )
-              )}
-            </View>
+                )}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                nestedScrollEnabled
+                contentContainerStyle={styles.screenshotRow}
+              />
+            ) : (
+              gameData?.background_image && (
+                <Image
+                  source={{ uri: gameData.background_image }}
+                  style={styles.gameImageFallback}
+                  resizeMode="cover"
+                />
+              )
+            )}
+          </View>
 
-            <Text style={styles.gameTitleText}>{gameData.name}</Text>
+          {/* Game title */}
+          <Text style={styles.gameTitleText}>{gameData.name}</Text>
 
-            {/*{gameData?.background_image && (
-            <Image
-              source={{ uri: gameData.background_image }}
-              style={styles.gameImage}
-              resizeMode="cover"
-            />
-          )}*/}
-            <Text style={styles.gameDescriptionText}>
-              {gameData.description_raw}
-            </Text>
-            <Text>The Current Metacritic Score: {gameData.metacritic}</Text>
-            <Text>Released: {gameData.released}</Text>
-            <View style={styles.gameAchievementsContainer}>
-              <Text style={styles.gameAchievementsTitle}>
-                Achievements{"\n"}
+          {/* Game description */}
+          <Text style={styles.gameDescriptionText}>
+            {gameData.description_raw}
+          </Text>
+
+          {/* Extra info */}
+          <Text>The Current Metacritic Score: {gameData.metacritic}</Text>
+          <Text>Released: {gameData.released}</Text>
+
+          {/* Achievements */}
+          <View style={styles.gameAchievementsContainer}>
+            <Text style={styles.gameAchievementsTitle}>Achievements{"\n"}</Text>
+            {gameAchievements.map((ach, index) => (
+              <Text key={index} style={styles.gameAchievementsText}>
+                Name: {ach.name} {"\n"}Description: {ach.description}
               </Text>
-              {gameAchievements.map((ach, index) => (
-                <Text key={index} style={styles.gameAchievementsText}>
-                  Name: {ach.name} {"\n"}Description: {ach.description}
-                </Text>
-              ))}
-            </View>
-          </ScrollView>
-        </>
+            ))}
+          </View>
+        </ScrollView>
       ) : (
         !isLoading &&
         !error && (
@@ -126,6 +148,7 @@ const DisplayScreen = ({ route }) => {
     </>
   );
 };
+
 const styles = StyleSheet.create({
   gameTitleText: {
     marginTop: 5,
@@ -146,6 +169,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22, // improves readability on longer blocks
     color: "#000000ff",
+  },
+  button: {
+    backgroundColor: "#4CAF50", // green background
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
+    shadowColor: "#000", // subtle shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3, // shadow for Android
   },
   gameImageScreenShot: {
     margin: 20,

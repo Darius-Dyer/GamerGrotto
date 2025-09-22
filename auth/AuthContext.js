@@ -8,6 +8,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   // State to hold user information
   const [user, setUser] = useState(null);
+  const [savedGames, setSavedGames] = useState([]);
 
   // Simulated sign-up function
   const signUp = async (username, password, email) => {
@@ -71,10 +72,40 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const addGames = (gameID, gameName) => {
+    if (savedGames.some((game) => game.id === gameID)) {
+      alert(`${gameName} was already added!`);
+    } else {
+      const updated = [...savedGames, { id: gameID, name: gameName }];
+      setSavedGames(updated);
+      alert("Game Was Added to Shelf \n" + gameName);
+      console.log("Updated array:", updated);
+    }
+  };
+
+  const removeGames = (gameID, gameName) => {
+    const updated = savedGames.filter((game) => game.id !== gameID);
+    setSavedGames(updated);
+    console.log("Updated array after removal:", updated);
+    alert(`${gameName} was removed from your shelf.`);
+  };
+
+  const checkSavedGames = (gameID) => {
+    return savedGames.some((game) => game.id === gameID);
+  };
   // Provide user and auth functions to context consumers
   return (
     <AuthContext.Provider
-      value={{ user, signUp, signIn, signOut, checkAccount }}
+      value={{
+        user,
+        signUp,
+        signIn,
+        signOut,
+        checkAccount,
+        addGames,
+        removeGames,
+        checkSavedGames,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useState, useRef } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../auth/AuthContext";
 
 const ProfileScreen = () => {
