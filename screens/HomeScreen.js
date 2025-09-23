@@ -1,17 +1,18 @@
 import * as React from "react";
 import { Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useTheme } from "@react-navigation/native";
 import { useAuth } from "../auth/AuthContext";
-
+import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../services/themes";
 const HomeScreen = () => {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
       <ScrollView
-        style={styles.mainView}
         contentContainerStyle={{
           flexGrow: 1,
           alignItems: "center",
