@@ -13,8 +13,14 @@ import { SearchBar } from "@rneui/themed";
 import debounce from "lodash.debounce";
 import { useNavigation } from "@react-navigation/native";
 import { getGames } from "../services/games";
+import { useAuth } from "../auth/AuthContext";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import SavedGamesScreen from "./SavedGamesScreen";
 
+import SearchScreen from "./SearchScreen";
 const ShelfScreen = () => {
+  const Tabs = createMaterialTopTabNavigator();
+  const { checkSavedGames } = useAuth();
   const { width } = Dimensions.get("window");
 
   const navigation = useNavigation();
@@ -40,129 +46,84 @@ const ShelfScreen = () => {
     []
   );
 
-  //Function Meant for game Search API call
-  // const handleGameSearch = useCallback(
-  //   //Debounce Used to limit invocation
-  //   //Search is passed into a try and catch conditional, await axios API call, and then set setSelectedGame to that response
-  //   debounce(async (search) => {
-  //     try {
-  //       const resp = await axios.get(
-  //         `${SERVER_URL}/api/games/search?s=${search}`
-  //       );
-  //       setSearchedGame(resp.data);
-  //       console.log("Search Response:", resp.data);
-  //     } catch (err) {
-  //       console.log(
-  //         "Could Not complete the API Request for Game Search:" + err
-  //       );
-  //     }
-  //   }, 500),
-  //   []
-  // );
-
-  // const updateSearch = (search) => {
-  //   setSearch(search);
-  //   handleGameSearch(search);
-  // };
-
-  // useEffect(() => {
-  //   if (selectedGameId) {
-  //     axios
-  //       .get(`${SERVER_URL}/api/games/achievements?id=${selectedGameId}`)
-  //       .then((response) => {
-  //         setGameAchievement(response.data);
-  //         console.log("Achievements Response:", response.data);
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching achievements:", error);
-  //       });
-
-  //     axios
-  //       .get(`${SERVER_URL}/api/games/screenshots?game_pk=${selectedGameId}`)
-  //       .then((response) => {
-  //         setGameScreenShots(response.data);
-  //         console.log("Screenshots Response:", response.data);
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching screenshots:", error);
-  //       });
-  //   }
-  // }, [selectedGameId]);
-
   return (
-    <KeyboardAvoidingView
-      contentContainerStyle={{ flex: 1 }}
-      style={styles.container}
-      behavior="padding"
-    >
-      <Text style={styles.mainText}>
-        In the Search Bar please enter the name of a game you would like to add
-        to your shelf.
-      </Text>
+    <Tabs.Navigator>
+      <Tabs.Screen name="Search" component={SearchScreen} />
+      <Tabs.Screen name="My Shelf" component={SavedGamesScreen} />
+    </Tabs.Navigator>
+    // <KeyboardAvoidingView
+    //   contentContainerStyle={{ flex: 1 }}
+    //   style={styles.container}
+    //   behavior="padding"
+    // >
+    //   {/* <Text style={styles.mainText}>
+    //     In the Search Bar please enter the name of a game you would like to add
+    //     to your shelf.
+    //   </Text> */}
 
-      {/* <SearchBar
-        placeholder="Enter Game Here"
-        platform="android"
-        searchIcon={null}
-        clearIcon={null}
-        style={styles.searchBarStyle}
-        value={search}
-        onChangeText={updateSearch}
-      /> */}
-      <SearchBar
-        placeholder="Search For a Game Here"
-        clearIcon={false}
-        searchIcon={null}
-        value={search}
-        onChangeText={(text) => {
-          setSearch(text);
-          searchForGames(text);
-        }}
-      />
-      {/* <Button title="Fetch Games" onPress={fetchGames} /> */}
-      <FlatList
-        data={searchedGame}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: "center",
-              alignContent: "center",
-              alignSelf: "center",
-            }}
-            style={styles.gameContainer}
-          >
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("Game Details", { id: item.id })
-              }
-            >
-              <Image
-                source={{ uri: item.background_image }}
-                style={{
-                  width: width * 0.9,
-                  height: width * 0.5,
-                  resizeMode: "contain",
-                  alignSelf: "center",
-                }}
-              />
-              <Text style={styles.gameText}>{item.name}</Text>
-              <Text style={styles.gameText}>Current Rating: {item.rating}</Text>
-              <Text style={styles.gameText}>Released on: {item.released}</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        )}
-      />
-      <ScrollView
-        style={styles.mainView}
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: "center",
-          alignContent: "center",
-        }}
-      ></ScrollView>
-    </KeyboardAvoidingView>
+    //   {/* <SearchBar
+    //     placeholder="Enter Game Here"
+    //     platform="android"
+    //     searchIcon={null}
+    //     clearIcon={null}
+    //     style={styles.searchBarStyle}
+    //     value={search}
+    //     onChangeText={updateSearch}
+    //   /> */}
+    //   <SearchBar
+    //     placeholder="Search For a Game Here"
+    //     clearIcon={false}
+    //     searchIcon={null}
+    //     value={search}
+    //     onChangeText={(text) => {
+    //       setSearch(text);
+    //       searchForGames(text);
+    //     }}
+    //   />
+    //   {/* <Button title="Fetch Games" onPress={fetchGames} /> */}
+    //   <FlatList
+    //     data={searchedGame}
+    //     keyExtractor={(item) => item.id.toString()}
+    //     renderItem={({ item }) => (
+    //       <ScrollView
+    //         contentContainerStyle={{
+    //           flexGrow: 1,
+    //           justifyContent: "center",
+    //           alignContent: "center",
+    //           alignSelf: "center",
+    //         }}
+    //         style={styles.gameContainer}
+    //       >
+    //         <TouchableOpacity
+    //           onPress={() =>
+    //             navigation.navigate("Game Details", { id: item.id })
+    //           }
+    //         >
+    //           <Image
+    //             source={{ uri: item.background_image }}
+    //             style={{
+    //               width: width * 0.9,
+    //               height: width * 0.5,
+    //               resizeMode: "contain",
+    //               alignSelf: "center",
+    //             }}
+    //           />
+    //           <Text style={styles.gameText}>{item.name}</Text>
+    //           <Text style={styles.gameText}>Current Rating: {item.rating}</Text>
+    //           <Text style={styles.gameText}>Released on: {item.released}</Text>
+    //         </TouchableOpacity>
+    //       </ScrollView>
+    //     )}
+    //   />
+    //   <ScrollView
+    //     style={styles.mainView}
+    //     contentContainerStyle={{
+    //       flexGrow: 1,
+    //       justifyContent: "center",
+    //       alignContent: "center",
+    //     }}
+    //   ></ScrollView>
+    // </KeyboardAvoidingView>
   );
 };
 const styles = StyleSheet.create({

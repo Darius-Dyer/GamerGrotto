@@ -16,7 +16,7 @@ import { useAuth } from "../auth/AuthContext";
 import { useEffect, useState } from "react";
 
 const DisplayScreen = ({ route }) => {
-  const { checkSavedGames, addGames, removeGames } = useAuth();
+  const { user, checkSavedGames, addGames, removeGames } = useAuth();
 
   const { id } = route.params;
   const [isLoading, setLoading] = useState(null);
@@ -60,24 +60,29 @@ const DisplayScreen = ({ route }) => {
 
       {gameData ? (
         <ScrollView contentContainerStyle={{ alignItems: "center" }}>
-          {/* Save / Remove button */}
-          {inLibrary ? (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => removeGames(gameData.id, gameData.name)}
-            >
-              <Text>
-                This Game is Already in your Library, Would you like to remove
-                it?
-              </Text>
-            </TouchableOpacity>
+          {user ? (
+            <>
+              {/* Save / Remove button */}
+              {inLibrary ? (
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => removeGames(gameData.id, gameData.name)}
+                >
+                  <Text>This Game is Already in your Library, remove?</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => addGames(gameData.id, gameData.name)}
+                >
+                  <Text>Would You Like to Save This Game?</Text>
+                </TouchableOpacity>
+              )}
+            </>
           ) : (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => addGames(gameData.id, gameData.name)}
-            >
-              <Text>Would You Like to Save This Game?</Text>
-            </TouchableOpacity>
+            <View>
+              <Text>Please log in to save/remove games.</Text>
+            </View>
           )}
 
           {/* Game screenshots */}
@@ -118,8 +123,21 @@ const DisplayScreen = ({ route }) => {
           </Text>
 
           {/* Extra info */}
-          <Text>The Current Metacritic Score: {gameData.metacritic}</Text>
-          <Text>Released: {gameData.released}</Text>
+          <View style={styles.extraInfoContainer}>
+            <Text style={styles.extraInfoText}>
+              Metacritic Score: {gameData.metacritic}
+            </Text>
+            <Text style={styles.extraInfoText}>
+              Released: {gameData.released}
+            </Text>
+            <Text style={styles.extraInfoText}>
+              Platforms:{" "}
+              {gameData.platforms.map((p) => p.platform.name).join(", ")}
+            </Text>
+            <Text style={styles.extraInfoText}>
+              Genres: {gameData.genres.map((g) => g.name)}
+            </Text>
+          </View>
 
           {/* Achievements */}
           <View style={styles.gameAchievementsContainer}>
@@ -206,6 +224,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#222",
     alignSelf: "center",
   },
+  extraInfoContainer: {
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 10,
+    width: "90%",
+    backgroundColor: "#f7f7f7",
+  },
+  extraInfoText: {
+    fontSize: 14,
+    color: "#444",
+    marginBottom: 6,
+    textAlign: "center",
+  },
   gameAchievementsContainer: {
     borderRadius: 5,
     borderWidth: 5,
@@ -213,13 +244,17 @@ const styles = StyleSheet.create({
     padding: 5,
     margin: 10,
   },
-  gameAchievementsTitle: { fontSize: 25, margin: 7, textAlign: "center" },
+  gameAchievementsTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 10,
+    textAlign: "center",
+  },
 
   gameAchievementsText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    margin: 10,
-    textAlign: "center",
+    fontSize: 14,
+    marginBottom: 8,
+    color: "#333",
   },
 });
 export default DisplayScreen;

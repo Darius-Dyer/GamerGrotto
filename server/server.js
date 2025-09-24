@@ -14,7 +14,7 @@ const RAWG_KEY = process.env.RAWG_KEY;
 //Endpoint to search for games
 app.get("/api/games/search", async (req, res) => {
   const resp = await fetch(
-    `https://api.rawg.io/api/games?search=${req.query.search}&search_exact=true&key=${RAWG_KEY}`
+    `https://api.rawg.io/api/games?search=${req.query.search}&search_precise=true&key=${RAWG_KEY}`
   );
   // Handle 404 and other errors
   if (resp.status === 404) {
@@ -76,7 +76,6 @@ app.get("/api/games/screenshots", async (req, res) => {
 
   // If the response is successful, parse and return the data
   const data = await resp.json();
-  console.log(data);
   res.json(data);
 });
 
@@ -104,7 +103,8 @@ app.get("/api/games/achievements", async (req, res) => {
   // If the response is successful, parse and return the data
   const data = await resp.json();
 
-  console.log(data.results[0]);
+  console.log(data.results);
+  console.log(data.count);
 
   res.json(data);
 });

@@ -18,7 +18,7 @@ export const getGameDetails = async (id) => {
     const response = await axios.get(
       `http://192.168.0.230:3000/api/games/details?id=${id}`
     );
-    //console.log(response.data);
+    console.log(response.data.genres);
     return response.data;
   } catch (error) {
     console.error("Error Fetching Game Detail Data:" + error);

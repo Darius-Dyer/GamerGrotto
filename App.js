@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import RootNavigation from "./navigation/navigation";
 import { AuthProvider } from "./auth/AuthContext";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 export default function App() {
   return (
