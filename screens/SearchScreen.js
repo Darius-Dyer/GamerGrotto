@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   KeyboardAvoidingView,
+  View,
 } from "react-native";
 import { SearchBar } from "@rneui/themed";
 import debounce from "lodash.debounce";
@@ -40,20 +41,6 @@ const SearchScreen = () => {
       style={styles.container}
       behavior="padding"
     >
-      {/* <Text style={styles.mainText}>
-        In the Search Bar please enter the name of a game you would like to add
-        to your shelf.
-      </Text> */}
-
-      {/* <SearchBar
-        placeholder="Enter Game Here"
-        platform="android"
-        searchIcon={null}
-        clearIcon={null}
-        style={styles.searchBarStyle}
-        value={search}
-        onChangeText={updateSearch}
-      /> */}
       <SearchBar
         placeholder="Search For a Game Here"
         clearIcon={false}
@@ -67,17 +54,10 @@ const SearchScreen = () => {
 
       <FlatList
         data={searchedGame}
+        contentContainerStyle={{ paddingBottom: 40 }}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: "center",
-              alignContent: "center",
-              alignSelf: "center",
-            }}
-            style={styles.gameContainer}
-          >
+          <View style={styles.gameCard}>
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("Game Details", { id: item.id })
@@ -85,18 +65,13 @@ const SearchScreen = () => {
             >
               <Image
                 source={{ uri: item.background_image }}
-                style={{
-                  width: width * 0.9,
-                  height: width * 0.5,
-                  resizeMode: "contain",
-                  alignSelf: "center",
-                }}
+                style={styles.gameImage}
               />
               <Text style={styles.gameText}>{item.name}</Text>
               <Text style={styles.gameText}>Current Rating: {item.rating}</Text>
               <Text style={styles.gameText}>Released on: {item.released}</Text>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
         )}
       />
     </KeyboardAvoidingView>
@@ -109,6 +84,24 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "bold",
     alignSelf: "center",
+  },
+  gameCard: {
+    marginVertical: 12, // space between items
+    marginHorizontal: 16,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  gameImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 10,
+    marginBottom: 8,
   },
 });
 

@@ -72,22 +72,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const addGames = (gameID, gameName) => {
-    if (savedGames.some((game) => game.id === gameID)) {
-      alert(`${gameName} was already added!`);
+  const addGames = (game) => {
+    if (savedGames.some((g) => g.id === game.id)) {
+      alert(`${game.name} was already added!`);
     } else {
-      const updated = [...savedGames, { id: gameID, name: gameName }];
+      const updated = [...savedGames, { id: game.id, name: game.name }];
       setSavedGames(updated);
-      alert("Game Was Added to Shelf \n" + gameName);
+      alert("Game Was Added to Shelf \n" + game.name);
       console.log("Updated array:", updated);
     }
   };
 
-  const removeGames = (gameID, gameName) => {
-    const updated = savedGames.filter((game) => game.id !== gameID);
+  const removeGames = (game) => {
+    const updated = savedGames.filter((g) => g.id !== game.id);
     setSavedGames(updated);
     console.log("Updated array after removal:", updated);
-    alert(`${gameName} was removed from your shelf.`);
+    alert(`${game.name} was removed from your shelf.`);
   };
 
   const checkSavedGames = (gameID) => {
@@ -98,6 +98,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        savedGames,
         signUp,
         signIn,
         signOut,

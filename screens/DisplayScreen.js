@@ -66,14 +66,14 @@ const DisplayScreen = ({ route }) => {
               {inLibrary ? (
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => removeGames(gameData.id, gameData.name)}
+                  onPress={() => removeGames(gameData)}
                 >
                   <Text>This Game is Already in your Library, remove?</Text>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => addGames(gameData.id, gameData.name)}
+                  onPress={() => addGames(gameData)}
                 >
                   <Text>Would You Like to Save This Game?</Text>
                 </TouchableOpacity>
