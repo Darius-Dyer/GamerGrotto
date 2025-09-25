@@ -16,10 +16,12 @@ import { getGames } from "../services/games";
 import { useAuth } from "../auth/AuthContext";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import SavedGamesScreen from "./SavedGamesScreen";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import SearchScreen from "./SearchScreen";
 const ShelfScreen = () => {
   const Tabs = createMaterialTopTabNavigator();
+
   const { checkSavedGames } = useAuth();
   const { width } = Dimensions.get("window");
 

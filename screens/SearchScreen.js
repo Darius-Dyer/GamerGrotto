@@ -50,6 +50,7 @@ const SearchScreen = () => {
           setSearch(text);
           searchForGames(text);
         }}
+        style={{ textAlign: "center" }}
       />
 
       <FlatList
@@ -78,6 +79,11 @@ const SearchScreen = () => {
   );
 };
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#121212",
+  },
+
   gameText: {
     textAlign: "center",
     margin: 1.5,

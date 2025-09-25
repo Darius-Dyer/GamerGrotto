@@ -10,7 +10,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import ShelfScreen from "../screens/ShelfScreen";
 import RegistrationScreen from "../screens/RegistrationScreen";
 import DisplayScreen from "../screens/DisplayScreen";
-
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -33,7 +33,7 @@ const BottomTabNavigation = () => {
         },
 
         tabBarActiveTintColor: "#fff",
-        tabBarInactiveTintColor: "#d3d3d3",
+        tabBarInactiveTintColor: "#242424ff",
         tabBarBackground: () => (
           <LinearGradient
             colors={["#36A3CF", "#57C785", "#000000"]}
@@ -42,12 +42,40 @@ const BottomTabNavigation = () => {
             style={{ flex: 1 }}
           />
         ),
+        headerTitleAlign: "center",
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Settings" component={SettingScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-      <Tab.Screen name="Shelf" component={ShelfScreen} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: () => <FontAwesome name="home" size={24} color="black" />,
+        }}
+      />
+
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: () => <FontAwesome name="user" size={24} color="black" />,
+        }}
+      />
+      <Tab.Screen
+        name="Shelf"
+        component={ShelfScreen}
+        options={{
+          tabBarIcon: () => (
+            <FontAwesome name="th-list" size={24} color="black" />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingScreen}
+        options={{
+          tabBarIcon: () => <FontAwesome name="gear" size={24} color="black" />,
+        }}
+      />
     </Tab.Navigator>
   );
 };
@@ -77,6 +105,7 @@ const RootNavigation = () => {
                 style={{ flex: 1 }}
               />
             ),
+            headerTitleAlign: "center",
           }}
         />
         <Stack.Screen
@@ -91,6 +120,7 @@ const RootNavigation = () => {
                 style={{ flex: 1 }}
               />
             ),
+            headerTitleAlign: "center",
           }}
         />
       </Stack.Navigator>

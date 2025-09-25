@@ -135,7 +135,7 @@ const DisplayScreen = ({ route }) => {
               {gameData.platforms.map((p) => p.platform.name).join(", ")}
             </Text>
             <Text style={styles.extraInfoText}>
-              Genres: {gameData.genres.map((g) => g.name)}
+              Genres: {gameData.genres.map((g) => g.name).join(", ")}
             </Text>
           </View>
 
