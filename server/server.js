@@ -81,8 +81,10 @@ app.get("/api/games/screenshots", async (req, res) => {
 
 //Endpoint to get game achievements by game ID
 app.get("/api/games/achievements", async (req, res) => {
+  const { id, page = 1 } = req.query;
+
   const resp = await fetch(
-    `https://api.rawg.io/api/games/${req.query.id}/achievements?key=${RAWG_KEY}`
+    `https://api.rawg.io/api/games/${id}/achievements?key=${RAWG_KEY}&page=${page}`
   );
 
   // Handle 404 and other errors

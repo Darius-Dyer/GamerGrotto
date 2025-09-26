@@ -6,12 +6,14 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import {
   getGameDetails,
   getGameAchievements,
   getGameScreenshots,
 } from "../services/games";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useAuth } from "../auth/AuthContext";
 import { useEffect, useState } from "react";
 
@@ -23,19 +25,22 @@ const DisplayScreen = ({ route }) => {
   const [error, setError] = useState(null);
 
   const [gameData, setGameData] = useState(null);
+  const [page, setPage] = useState(1);
   const [gameAchievements, setGameAchievements] = useState([]);
   const [gameScreenShots, setGameScreenShots] = useState([]);
+  const [gameAchievementsCount, setGameAchievementsCount] = useState(0);
 
   const getGameData = async () => {
     try {
       setLoading(true);
       const data = await getGameDetails(id);
-      const achievements = await getGameAchievements(id);
+      const achievements = await getGameAchievements(id, page);
       const screenshots = await getGameScreenshots(id);
       if (data) {
         setGameData(data);
-        setGameAchievements(achievements.results);
+        setGameAchievements((prev) => [...prev, ...achievements.results]);
         setGameScreenShots(screenshots.results);
+        setGameAchievementsCount(achievements.count);
       }
     } catch (error) {
       setError(error.message || "Something Went Wrong");
@@ -51,7 +56,7 @@ const DisplayScreen = ({ route }) => {
     if (id) {
       getGameData();
     }
-  }, [id]);
+  }, [id, page]);
 
   return (
     <>
@@ -59,7 +64,7 @@ const DisplayScreen = ({ route }) => {
       {error && <Text>{error}</Text>}
 
       {gameData ? (
-        <ScrollView contentContainerStyle={{ alignItems: "center" }}>
+        <ScrollView contentContainerStyle={styles.container}>
           {user ? (
             <>
               {/* Save / Remove button */}
@@ -81,7 +86,9 @@ const DisplayScreen = ({ route }) => {
             </>
           ) : (
             <View>
-              <Text>Please log in to save/remove games.</Text>
+              <Text style={styles.mainText}>
+                Please log in to save/remove games.
+              </Text>
             </View>
           )}
 
@@ -124,6 +131,8 @@ const DisplayScreen = ({ route }) => {
 
           {/* Extra info */}
           <View style={styles.extraInfoContainer}>
+            <FontAwesome name="info" size={24} color="#fff" />
+            <Text style={styles.extraInfoTitleText}>Extra Information</Text>
             <Text style={styles.extraInfoText}>
               Metacritic Score: {gameData.metacritic}
             </Text>
@@ -141,11 +150,25 @@ const DisplayScreen = ({ route }) => {
 
           {/* Achievements */}
           <View style={styles.gameAchievementsContainer}>
-            <Text style={styles.gameAchievementsTitle}>Achievements{"\n"}</Text>
+            <Text style={styles.gameAchievementsTitle}>
+              Showing {gameAchievements.length} of {gameAchievementsCount}{" "}
+              Achievements
+            </Text>
+
+            {gameAchievements.length < gameAchievementsCount && (
+              <Button
+                title="Load More"
+                onPress={() => setPage((prev) => prev + 1)}
+              />
+            )}
+
             {gameAchievements.map((ach, index) => (
-              <Text key={index} style={styles.gameAchievementsText}>
-                Name: {ach.name} {"\n"}Description: {ach.description}
-              </Text>
+              <>
+                <Text key={index} style={styles.gameAchievementsText}>
+                  {"\n"}
+                  {index}. Name: {ach.name} {"\n"}Description: {ach.description}
+                </Text>
+              </>
             ))}
           </View>
         </ScrollView>
@@ -168,26 +191,67 @@ const DisplayScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#121212",
+    flexGrow: 1,
+  },
+
+  mainText: {
+    textAlign: "center",
+    color: "#fff",
+    margin: 10,
+    fontWeight: 200,
+    fontSize: 17,
+    alignSelf: "center",
+    letterSpacing: 1,
+  },
+
   gameTitleText: {
     marginTop: 5,
-    marginBottom: 12, // space before the description or image
+    marginBottom: 12,
     textAlign: "center",
     fontSize: 26,
-    fontWeight: "700", // bold, but crisper than "bold"
-    color: "#000000ff", // white (works well with dark background)
-    letterSpacing: 0.5,
+    fontWeight: "700",
+    color: "#fff",
+    letterSpacing: 1,
   },
+
   screenshotRow: {
     paddingHorizontal: 10,
   },
-  gameDescriptionText: {
-    marginHorizontal: 20, // breathing room on the sides
-    marginBottom: 20, // space before the next section
-    textAlign: "center", // centered for symmetry, or "left" for readability
-    fontSize: 16,
-    lineHeight: 22, // improves readability on longer blocks
-    color: "#000000ff",
+  gameImageScreenShot: {
+    margin: 20,
+    aspectRatio: 16 / 9,
+    borderRadius: 10,
+    borderWidth: 7,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderColor: "#1e1e1e",
+    width: 300,
+    height: 300,
+    alignSelf: "center",
   },
+  gameImageFallback: {
+    margin: 20,
+    aspectRatio: 16 / 9,
+    borderRadius: 10,
+    borderWidth: 7,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderColor: "#1e1e1e",
+    width: 300,
+    height: 300,
+    alignSelf: "center",
+  },
+  gameDescriptionText: {
+    margin: 20,
+    textAlign: "center",
+    fontSize: 16,
+    lineHeight: 25,
+    letterSpacing: 0.5,
+    color: "#fff",
+  },
+
   button: {
     backgroundColor: "#4CAF50", // green background
     paddingVertical: 12,
@@ -202,59 +266,50 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3, // shadow for Android
   },
-  gameImageScreenShot: {
-    margin: 20,
-    aspectRatio: 16 / 9,
-    borderRadius: 10,
-    padding: 10,
-    backgroundColor: "#222",
-    width: 300,
-    height: 300,
-    backgroundColor: "#222",
-    alignSelf: "center",
-  },
-  gameImageFallback: {
-    margin: 20,
-    aspectRatio: 16 / 9,
-    borderRadius: 10,
-    padding: 10,
-    backgroundColor: "#222",
-    width: 170,
-    height: 170,
-    backgroundColor: "#222",
-    alignSelf: "center",
-  },
+
   extraInfoContainer: {
-    padding: 10,
-    borderRadius: 8,
-    marginVertical: 10,
-    width: "90%",
-    backgroundColor: "#f7f7f7",
+    width: "85%",
+    backgroundColor: "#1e1e1e",
+    padding: 15,
+    margin: 15,
+    alignSelf: "center",
+    borderRadius: 20,
+    alignItems: "center",
   },
+  extraInfoTitleText: {
+    marginTop: 5,
+    marginBottom: 12,
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#fff",
+  },
+
   extraInfoText: {
     fontSize: 14,
-    color: "#444",
+    color: "#fff",
     marginBottom: 6,
     textAlign: "center",
   },
+
   gameAchievementsContainer: {
     borderRadius: 5,
-    borderWidth: 5,
-    borderColor: "teal",
-    padding: 5,
+    backgroundColor: "#1e1e1e",
+    padding: 30,
     margin: 10,
   },
   gameAchievementsTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "700",
     marginBottom: 10,
     textAlign: "center",
+    color: "#fff",
   },
 
   gameAchievementsText: {
     fontSize: 14,
     marginBottom: 8,
-    color: "#333",
+    color: "#fff",
   },
 });
 export default DisplayScreen;

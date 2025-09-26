@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";

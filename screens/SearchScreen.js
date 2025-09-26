@@ -90,13 +90,14 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "bold",
     alignSelf: "center",
+    color: "#fff",
   },
   gameCard: {
     marginVertical: 12, // space between items
     marginHorizontal: 16,
     padding: 12,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#1e1e1e",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

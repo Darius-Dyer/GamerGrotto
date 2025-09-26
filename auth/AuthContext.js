@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     alert(`${game.name} was removed from your shelf.`);
   };
 
-  const checkSavedGames = (gameID) => {
+  const checkSavedGames = (game) => {
     return savedGames.some((game) => game.id === gameID);
   };
   // Provide user and auth functions to context consumers
