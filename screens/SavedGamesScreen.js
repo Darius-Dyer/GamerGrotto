@@ -59,23 +59,25 @@ const SavedGamesScreen = () => {
                         navigation.navigate("Game Details", { id: item.id })
                       }
                     >
-                      <Text style={styles.buttonText}>View Game</Text>
                       <FontAwesome name="file-text-o" size={24} color="black" />
+                      <Text style={styles.buttonText}>View Game</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                       style={[styles.button, styles.removeButton]}
                       onPress={() => removeGames(item)}
                     >
-                      <Text style={styles.buttonText}>Remove</Text>
                       <FontAwesome name="trash-o" size={24} color="black" />
+                      <Text style={styles.buttonText}>Remove</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               )}
             />
           ) : (
-            <Text style={styles.empty}>No games saved yet.</Text>
+            <Text style={styles.empty}>
+              {user.username}'s Shelf {"\n"} No games saved yet.
+            </Text>
           )}
         </View>
       )}
@@ -96,6 +98,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
+
   title: {
     fontSize: 18,
     fontWeight: "600",
@@ -115,7 +118,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 8,
   },
-  empty: { textAlign: "center", marginTop: 20, fontSize: 16 },
+  empty: { textAlign: "center", marginTop: 20, fontSize: 16, color: "#fff" },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -140,12 +143,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
+    alignItems: "center",
   },
   viewButton: {
-    backgroundColor: "#4CAF50", // green
+    backgroundColor: "#4CAF50",
+    alignContent: "center",
+    alignItems: "center", // green
   },
   removeButton: {
     backgroundColor: "#E53935", // red
+    alignItems: "center", // green
   },
 });
 

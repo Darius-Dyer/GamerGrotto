@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   ScrollView,
   Text,
@@ -18,6 +18,8 @@ import { getGames } from "../services/games";
 const SearchScreen = () => {
   const { width } = Dimensions.get("window");
   const navigation = useNavigation();
+
+  const searchClear = useRef("");
 
   const [search, setSearch] = useState("");
   const [searchedGame, setSearchedGame] = useState([]);

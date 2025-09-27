@@ -27,13 +27,6 @@ const BottomTabNavigation = () => {
             style={{ flex: 1 }}
           />
         ),
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-        },
-
-        tabBarActiveTintColor: "#fff",
-        tabBarInactiveTintColor: "#242424ff",
         tabBarBackground: () => (
           <LinearGradient
             colors={["#36A3CF", "#57C785", "#000000"]}
@@ -42,6 +35,9 @@ const BottomTabNavigation = () => {
             style={{ flex: 1 }}
           />
         ),
+        tabBarActiveTintColor: "#fff",
+        tabBarInactiveTintColor: "#242424ff",
+        headerTitleStyle: { fontWeight: "bold" },
         headerTitleAlign: "center",
       }}
     >

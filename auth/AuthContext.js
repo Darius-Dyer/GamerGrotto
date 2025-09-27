@@ -36,6 +36,9 @@ export const AuthProvider = ({ children }) => {
     const userData = JSON.parse(account);
     if (password === userData.password) {
       setUser(userData);
+      const gamesKey = `savedGames_${username}`;
+      const storedGames = await AsyncStorage.getItem(gamesKey);
+      setSavedGames(storedGames ? JSON.parse(storedGames) : []);
       console.log("User signed in:", username);
       alert("Login Successful!");
       return true;
@@ -52,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const checkAccount = async () => {
-    const account = await AsyncStorage.getItem(`user`);
+    const account = await AsyncStorage.getItem(`user_${user.username}`);
     if (account) {
       console.log("Stored Account data: ", JSON.parse(account));
       alert(
@@ -72,26 +75,52 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const addGames = (game) => {
-    if (savedGames.some((g) => g.id === game.id)) {
-      alert(`${game.name} was already added!`);
-    } else {
-      const updated = [...savedGames, { id: game.id, name: game.name }];
+  const addGames = async (game) => {
+    try {
+      if (!user || !user.username) {
+        alert("No User Signed In.");
+        return;
+      }
+      const key = `savedGames_${user.username}`;
+
+      if (savedGames.some((g) => g.id === game.id)) {
+        alert(`${game.name} was already added!`);
+        return;
+      }
+
+      const updated = [
+        ...savedGames,
+        { id: game.id, name: game.name, cover: game.background_image },
+      ];
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
       setSavedGames(updated);
       alert("Game Was Added to Shelf \n" + game.name);
       console.log("Updated array:", updated);
+    } catch (error) {
+      console.error("Error saving game:", err);
     }
   };
 
-  const removeGames = (game) => {
-    const updated = savedGames.filter((g) => g.id !== game.id);
-    setSavedGames(updated);
-    console.log("Updated array after removal:", updated);
-    alert(`${game.name} was removed from your shelf.`);
+  const removeGames = async (game) => {
+    try {
+      if (!user || !user.username) {
+        alert("No User Signed In.");
+        return;
+      }
+      const key = `savedGames_${user.username}`;
+
+      const updated = savedGames.filter((g) => g.id !== game.id);
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      setSavedGames(updated);
+      console.log("Updated array after removal:", updated);
+      alert(`${game.name} was removed from your shelf.`);
+    } catch (error) {
+      console.error("Error removing game:", error);
+    }
   };
 
   const checkSavedGames = (game) => {
-    return savedGames.some((game) => game.id === gameID);
+    return savedGames.some((g) => g.id === game);
   };
   // Provide user and auth functions to context consumers
   return (
