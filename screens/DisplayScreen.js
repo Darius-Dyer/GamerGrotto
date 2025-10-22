@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Button,
+  ActivityIndicator,
 } from "react-native";
 import {
   getGameDetails,
@@ -18,12 +19,19 @@ import { useAuth } from "../auth/AuthContext";
 import { useEffect, useState } from "react";
 
 const DisplayScreen = ({ route }) => {
-  const { user, checkSavedGames, addGames, removeGames } = useAuth();
+  const {
+    user,
+    checkSavedGames,
+    addGames,
+    removeGames,
+    checkSavedAchievements,
+    addAchievements,
+    removeAchievements,
+  } = useAuth();
 
   const { id } = route.params;
   const [isLoading, setLoading] = useState(null);
   const [error, setError] = useState(null);
-
   const [gameData, setGameData] = useState(null);
   const [page, setPage] = useState(1);
   const [gameAchievements, setGameAchievements] = useState([]);
@@ -31,11 +39,30 @@ const DisplayScreen = ({ route }) => {
   const [gameAchievementsCount, setGameAchievementsCount] = useState(0);
 
   const getGameData = async () => {
+    {
+      /* Async Function intended to get game information.
+      SetLoading to true  
+      1. Get game details. We accomplish this by using the id param passed in from the search query as an argument and pass it to the axios request.
+      2. Get the list of Achievements. We accomplish this by taking two arguments, we need the game id, which we have already passed, and the page number    
+      3. Get the list of available screenshots. We accomplish this by taking the id and passing it to the axios request.
+      
+      Then if data exists, we then update state for 4 of our constants.
+      1. We set setGameData to the value of data from the axios request, mutating the state of gameData.
+      2. We set setGameAchievements to the value of a copied version of the previous array, adn the achievements array focusing on the results.
+      3. We set setScreenShots to the value of screenshots with emphasis on the results.
+      4. We then set setGameAchievementCount to the value of achievement with focus on its count. 
+    
+      Finally we initiate our catch if something goes wrong. Will Implement more fallback later.
+      We also setLoading to false, because by this point we have our data ready and waiting to be displayed. 
+    */
+    }
+
     try {
       setLoading(true);
       const data = await getGameDetails(id);
       const achievements = await getGameAchievements(id, page);
       const screenshots = await getGameScreenshots(id);
+
       if (data) {
         setGameData(data);
         setGameAchievements((prev) => [...prev, ...achievements.results]);
@@ -148,10 +175,16 @@ const DisplayScreen = ({ route }) => {
             </Text>
           </View>
 
-          {/* Achievements */}
+          {/* Achievements Display 
+          This View will display the achievements the APi has access to. 
+          It will only show 10 before another call is initiated by the user.
+          If the length of the gameAchievements array is less then the count of game achievements a button will be visible to display more
+          We then iterate over the array with a .map method to show each achievement's name, description, along with its index number.
+          --Future updates, could convert into a component for cleaner code, logic for saving achievements is done on AsyncStorage just not on Font-End.
+          */}
           <View style={styles.gameAchievementsContainer}>
             <Text style={styles.gameAchievementsTitle}>
-              Showing {gameAchievements.length} of {gameAchievementsCount}{" "}
+              Showing {gameAchievements.length} of {gameAchievementsCount}
               Achievements
             </Text>
 
