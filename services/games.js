@@ -18,6 +18,8 @@ export const getGameDetails = async (id) => {
     const response = await axios.get(
       `http://192.168.0.230:3000/api/games/details?id=${id}`
     );
+    //console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error Fetching Game Detail Data:" + error);
@@ -29,6 +31,8 @@ export const getGameScreenshots = async (id) => {
     const response = await axios.get(
       `http://192.168.0.230:3000/api/games/screenshots?game_pk=${id}`
     );
+    //console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error Fetching Game Screenshots:" + error);
@@ -40,7 +44,8 @@ export const getGameAchievements = async (id, page) => {
     const response = await axios.get(
       `http://192.168.0.230:3000/api/games/achievements?id=${id}&page=${page}`
     );
-    console.log(response.data);
+    //console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error Fetching Game Achievements: " + error);
