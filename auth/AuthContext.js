@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   // State to hold user information
   const [user, setUser] = useState(null);
   const [savedGames, setSavedGames] = useState([]);
+  const [savedAchievements, setSavedAchievements] = useState([]);
 
   // Simulated sign-up function
   const signUp = async (username, password, email) => {
@@ -58,14 +59,7 @@ export const AuthProvider = ({ children }) => {
     const account = await AsyncStorage.getItem(`user_${user.username}`);
     if (account) {
       console.log("Stored Account data: ", JSON.parse(account));
-      alert(
-        "Account exists, user is registered:" +
-          "Username:" +
-          username +
-          " " +
-          "Password:" +
-          password
-      );
+      alert(`Account exists for ${username}`);
       // Account exists, user is registered
     } else if (account && username && password) {
       alert("Account already exists, please log in");
@@ -122,12 +116,63 @@ export const AuthProvider = ({ children }) => {
   const checkSavedGames = (game) => {
     return savedGames.some((g) => g.id === game);
   };
+
+  const addAchievements = async (achievement) => {
+    try {
+      if (!user || !user.username) {
+        alert("No User Signed In!");
+        return;
+      }
+      const key = `savedAchievements_${user.username}`;
+
+      if (savedAchievements.some((a) => a.id === achievement.id)) {
+        alert(`${achievement.name} was already added.`);
+        return;
+      }
+
+      const updated = [
+        ...savedAchievements,
+        {
+          id: achievement.id,
+          name: achievement.name,
+          description: achievement.description,
+        },
+      ];
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      alert("Achievement was added to record: \n" + achievement.name);
+      console.log("Updated Array:", updated);
+    } catch (error) {
+      console.log("Error adding achievement:", error);
+    }
+  };
+
+  const removeAchievement = async (achievement) => {
+    try {
+      if (user || !user.username) {
+        alert("No user signed in");
+        return;
+      }
+      const key = `savedAchievements_${user.username}`;
+      const updated = savedAchievements.filter((a) => a.id !== achievement.id);
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      setSavedAchievements(updated);
+      console.log("Updated array after removal:", updated);
+      alert(`${achievement.name} was removed from the account.`);
+    } catch (error) {
+      console.log("Error removing achievement:", error);
+    }
+  };
+  const checkAchievements = (achievement) => {
+    return savedAchievements.some((a) => a.id === achievement);
+  };
+
   // Provide user and auth functions to context consumers
   return (
     <AuthContext.Provider
       value={{
         user,
         savedGames,
+        savedAchievements,
         signUp,
         signIn,
         signOut,
@@ -135,6 +180,9 @@ export const AuthProvider = ({ children }) => {
         addGames,
         removeGames,
         checkSavedGames,
+        addAchievements,
+        removeAchievement,
+        checkAchievements,
       }}
     >
       {children}
