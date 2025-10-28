@@ -83,15 +83,13 @@ const RegistrationScreen = () => {
 
   // Function to check if account exists
   const checkAccount = async () => {
-    const account = await AsyncStorage.getItem(`user`);
+    const account = await AsyncStorage.getItem(`user_${username}`);
     if (account) {
+          const parsed = JSON.parse(account);
+
       alert(
-        "Account exists, user is registered:" +
-          "Username:" +
-          username +
-          " " +
-          "Password:" +
-          password
+             `Account exists:\nUsername: ${parsed.username}\nEmail: ${parsed.email}`
+
       );
       // Account exists, user is registered
     } else if (account && username && password) {
@@ -106,11 +104,6 @@ const RegistrationScreen = () => {
   return (
     // Registration Screen
     // Using KeyboardAvoidingView to prevent keyboard from covering inputs
-    // <KeyboardAvoidingView
-    //   style={styles.container}
-    //   behavior={Platform.OS === "ios" ? "padding" : "height"}
-    //   keyboardVerticalOffset={50}
-    // >
 
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
