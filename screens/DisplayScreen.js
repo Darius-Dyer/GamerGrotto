@@ -9,6 +9,7 @@ import {
   Button,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   getGameDetails,
   getGameAchievements,
@@ -30,6 +31,20 @@ const DisplayScreen = ({ route }) => {
   } = useAuth();
 
   const { id } = route.params;
+
+  {
+    /**
+    useState hooks -- We are declaring our state variables. 
+    1. isLoading is set to null CURRENTLY. It will change based on when the data is available -- Why need? To display fetching behavior visually
+    2. error is set to null CURRENTLY. It will change based on if we receive the data or can display it properly -- Why need? To display fetching error 
+    3. gameData is set to null CURRENTLY. It will change to display game data received from the id param. -- Why need? To display the game's data for user consumption.
+    4. page is set to 1 CURRENTLY. It will change based on the amount of achievements that can currently be displayed. -- Why need? Because API only calls a select number of achievements at a time.
+    5. gameAchievements is set to an empty array CURRENTLY. Will change to display the achievements of the selected game. -- Why need? We need to display the achievements 
+    6. gameScreenshots is set to an empty array CURRENTLY. Will change to display the the collection of available screenshots. -- Why need? We need to display game screenshots  
+    7. gameAchievementsCount is set to 0 CURRENTLY. Will change to count the amount of achievements currently displayed and gathered. --Why need? Because this loads the total number of achievements so we may fetch more if there not all available. 
+    */
+  }
+
   const [isLoading, setLoading] = useState(null);
   const [error, setError] = useState(null);
   const [gameData, setGameData] = useState(null);
@@ -38,10 +53,10 @@ const DisplayScreen = ({ route }) => {
   const [gameScreenShots, setGameScreenShots] = useState([]);
   const [gameAchievementsCount, setGameAchievementsCount] = useState(0);
 
-  const getGameData = async () => {
+  const fetchGameData = async () => {
     {
       /* Async Function intended to get game information.
-      SetLoading to true  
+      SetLoading to true as we are waiting for data from the api call. 
       1. Get game details. We accomplish this by using the id param passed in from the search query as an argument and pass it to the axios request.
       2. Get the list of Achievements. We accomplish this by taking two arguments, we need the game id, which we have already passed, and the page number    
       3. Get the list of available screenshots. We accomplish this by taking the id and passing it to the axios request.
@@ -56,18 +71,16 @@ const DisplayScreen = ({ route }) => {
       We also setLoading to false, because by this point we have our data ready and waiting to be displayed. 
     */
     }
-
     try {
       setLoading(true);
+
       const data = await getGameDetails(id);
-      const achievements = await getGameAchievements(id, page);
+      //const achievements = await getGameAchievements(id, page);
       const screenshots = await getGameScreenshots(id);
 
       if (data) {
         setGameData(data);
-        setGameAchievements((prev) => [...prev, ...achievements.results]);
         setGameScreenShots(screenshots.results);
-        setGameAchievementsCount(achievements.count);
       }
     } catch (error) {
       setError(error.message || "Something Went Wrong");
@@ -77,21 +90,176 @@ const DisplayScreen = ({ route }) => {
     }
   };
 
+  const fetchGameAchievement = async () => {
+    try {
+      setLoading(true);
+      const achievements = await getGameAchievements(id, page + 1);
+
+      {
+        /**
+        Get data for both count and achievements 
+        check if achievements data was collected.
+        achievement count is put into state
+        achievemnt results is placed into state
+        
+        
+        
+        
+        */
+      }
+
+      if (!achievements) {
+        console.log("No achievement data obtained.");
+        return;
+      }
+
+      if (page > 1 && gameAchievements.length === gameAchievementsCount) {
+        return;
+      }
+
+      if (page > 1 && gameAchievements.length >= gameAchievementsCount) {
+        console.log(
+          "The total amount of game achievements cannot exceed the amount of achievements total."
+        );
+        return;
+      }
+
+      setGameAchievements((prevPageAchievements) => [
+        ...prevPageAchievements,
+        ...achievements.results,
+      ]);
+      setGameAchievementsCount(achievements.count);
+
+      {
+        /**
+        We first set Loading to true to make sure the user knows that data is being fetched.
+        We then gather the data from the axios request for the achievements.
+        Next Comes the logic 
+          - If there are no achievements then return a console log saying there aren't any achievements
+          - If the length/size of the achievements exceeds the amount returned then return nothing.
+          - If there is no page, return a console log saying there are either no more pages to fetch or there are no pages.
+        */
+      }
+
+      //Stop if all achievements have been loaded
+
+      {
+        /**
+        If the page is 1, which it will almost always start on, place the data we received in to the state gameAchievements with the set function. 
+        Else, whenever there are other pages, append the data form the previous array to a new array. 
+    */
+      }
+
+      setLoading(false);
+    } catch (error) {
+      setError(error.message || "Something Went Wrong");
+      console.error("Fetch error:", error);
+    }
+  };
+
   const inLibrary = gameData ? checkSavedGames(gameData.id) : false;
 
-  useEffect(() => {
-    if (id) {
-      getGameData();
+  //Child
+  const AchievementsComponent = ({ getAchievements, achievementsCount }) => {
+    {
+      /**
+  Achievement Child Component to style the Component to display Achievement data.
+  */
     }
-  }, [id, page]);
+
+    console.log(getAchievements.map((a) => a.id));
+    console.log(achievementsCount);
+    const detailed = getAchievements.map((index) => index.name);
+
+    if (!getAchievements || !achievementsCount) return;
+    return (
+      <View style={{ flex: 1 }}>
+        <Text style={styles.gameAchievementsTitle}>
+          There are {achievementsCount} Total Achievements:
+        </Text>
+        <Text style={styles.gameAchievementsTitle}>
+          Currently Displaying {getAchievements.length}/{achievementsCount}
+        </Text>
+
+        <View
+          style={{
+            ...styles.gameAchievementsContainer,
+          }}
+        >
+          {getAchievements.map((index) => {
+            return (
+              <View style={{ maxHeight: 300 }}>
+                <ScrollView
+                  key={index.id}
+                  contentContainerStyle={{
+                    borderColor: "black",
+                    borderWidth: 7,
+                    margin: 7,
+                    paddingLeft: 7,
+                    paddingRight: 7,
+                  }}
+                  nestedScrollEnabled
+                >
+                  <Text style={styles.gameAchievementsTitle}>
+                    Title: {index.name}
+                  </Text>
+
+                  <Text style={styles.gameAchievementsText}>
+                    Description: {index.description}
+                    {"\n"}
+                  </Text>
+                </ScrollView>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
+
+  useEffect(() => {
+    {
+      /*
+    Runs getGameData() when the component first mounts and whenever `id` or `page` changes.
+
+- We don’t trigger this fetch with a button, so useEffect handles the side effect render.
+- Including `id` ensures we fetch again if the user navigates to the same screen with a different game. Not entirely integral now but important for the future.
+- Including `page` ensures we fetch again when pagination changes.
+
+Without this, the screen could show empty or stale data depending on navigation behavior.
+    */
+    }
+    if (id) {
+      const fetchInitialPage = async () => {
+        setLoading(true);
+        const initialAchievement = await getGameAchievements(id, 1);
+        console.log(initialAchievement.results);
+        if (!initialAchievement) {
+          console.log("No achievement data obtained.");
+          return;
+        }
+        setGameAchievements(initialAchievement.results);
+        setGameAchievementsCount(initialAchievement.count);
+      };
+      fetchGameData();
+
+      fetchInitialPage();
+    }
+  }, [id]);
 
   return (
-    <>
-      {isLoading && <Text>Loading...</Text>}
-      {error && <Text>{error}</Text>}
-
-      {gameData ? (
-        <ScrollView contentContainerStyle={styles.container}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
+      {isLoading ? (
+        <View
+          style={{ flex: 1, alignContent: "center", justifyContent: "center" }}
+        >
+          <ActivityIndicator size="large" color="#00ff00" />
+          <Text style={{ fontSize: 30, textAlign: "center", color: "#fff" }}>
+            Loading...
+          </Text>
+        </View>
+      ) : gameData ? (
+        <ScrollView>
           {user ? (
             <>
               {/* Save / Remove button */}
@@ -182,27 +350,29 @@ const DisplayScreen = ({ route }) => {
           We then iterate over the array with a .map method to show each achievement's name, description, along with its index number.
           --Future updates, could convert into a component for cleaner code, logic for saving achievements is done on AsyncStorage just not on Font-End.
           */}
-          <View style={styles.gameAchievementsContainer}>
-            <Text style={styles.gameAchievementsTitle}>
-              Showing {gameAchievements.length} of {gameAchievementsCount}
-              Achievements
-            </Text>
 
-            {gameAchievements.length < gameAchievementsCount && (
+          <View>
+            {gameAchievements.length >= gameAchievementsCount ? (
+              <>
+                <Text style={styles.gameAchievementsTitle}>
+                  All achievements have been collected
+                </Text>
+              </>
+            ) : (
               <Button
-                title="Load More"
-                onPress={() => setPage((prev) => prev + 1)}
+                style={styles.button}
+                title="Fetch More Achievements"
+                onPress={() => {
+                  setPage((prevPage) => prevPage + 1);
+                  fetchGameAchievement();
+                }}
               />
             )}
 
-            {gameAchievements.map((ach, index) => (
-              <>
-                <Text key={index} style={styles.gameAchievementsText}>
-                  {"\n"}
-                  {index}. Name: {ach.name} {"\n"}Description: {ach.description}
-                </Text>
-              </>
-            ))}
+            <AchievementsComponent
+              getAchievements={gameAchievements}
+              achievementsCount={gameAchievementsCount}
+            />
           </View>
         </ScrollView>
       ) : (
@@ -219,14 +389,15 @@ const DisplayScreen = ({ route }) => {
           </ScrollView>
         )
       )}
-    </>
+      {error && <Text>{error}</Text>}
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#121212",
-    flexGrow: 1,
+    flex: 1,
   },
 
   mainText: {
@@ -328,7 +499,7 @@ const styles = StyleSheet.create({
   gameAchievementsContainer: {
     borderRadius: 5,
     backgroundColor: "#1e1e1e",
-    padding: 30,
+    padding: 20,
     margin: 10,
   },
   gameAchievementsTitle: {
@@ -343,6 +514,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
     color: "#fff",
+    textAlign: "center",
   },
 });
 export default DisplayScreen;
