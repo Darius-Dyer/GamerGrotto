@@ -18,6 +18,8 @@ import {
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useAuth } from "../auth/AuthContext";
 import { useEffect, useState } from "react";
+import AchievementSection from "../components/AchievementSection";
+import ExtraInfoSection from "../components/ExtraInfoSection";
 
 const DisplayScreen = ({ route }) => {
   const {
@@ -35,13 +37,13 @@ const DisplayScreen = ({ route }) => {
   {
     /**
     useState hooks -- We are declaring our state variables. 
-    1. isLoading is set to null CURRENTLY. It will change based on when the data is available -- Why need? To display fetching behavior visually
-    2. error is set to null CURRENTLY. It will change based on if we receive the data or can display it properly -- Why need? To display fetching error 
-    3. gameData is set to null CURRENTLY. It will change to display game data received from the id param. -- Why need? To display the game's data for user consumption.
-    4. page is set to 1 CURRENTLY. It will change based on the amount of achievements that can currently be displayed. -- Why need? Because API only calls a select number of achievements at a time.
-    5. gameAchievements is set to an empty array CURRENTLY. Will change to display the achievements of the selected game. -- Why need? We need to display the achievements 
-    6. gameScreenshots is set to an empty array CURRENTLY. Will change to display the the collection of available screenshots. -- Why need? We need to display game screenshots  
-    7. gameAchievementsCount is set to 0 CURRENTLY. Will change to count the amount of achievements currently displayed and gathered. --Why need? Because this loads the total number of achievements so we may fetch more if there not all available. 
+    1. isLoading is set to null initially. It will change based on when Loading needs to be demonstrated in the UI -- Why need? To display fetching behavior visually
+    2. error is set to null initially. It will change based on if we can properly displayed -- Why need? To display fetching error 
+    3. gameData is set to null initially. It will change based on the game data we receive from the Axios call . -- Why need? To display the game's data for user consumption.
+    4. page is set to 1 initially. It will change based on the amount of achievements that can currently be displayed. -- Why need? Because API only returns 10 of achievements at a time.
+    5. gameAchievements is set to an empty array initially. Will change to display the achievements of the selected game. -- Why need? We need to display the achievements 
+    6. gameScreenshots is set to an empty array initially. Will change to display the the collection of available screenshots. -- Why need? We need to display game screenshots  
+    7. gameAchievementsCount is set to 0 initially. Will change to count the amount of achievements currently displayed and gathered. --Why need? Because this loads the total number of achievements so we may fetch more if there not all available. 
     */
   }
 
@@ -159,63 +161,67 @@ const DisplayScreen = ({ route }) => {
 
   const inLibrary = gameData ? checkSavedGames(gameData.id) : false;
 
-  //Child
-  const AchievementsComponent = ({ getAchievements, achievementsCount }) => {
-    {
-      /**
-  Achievement Child Component to style the Component to display Achievement data.
-  */
-    }
+  const strippedDescription = gameData?.description_raw
+    ? gameData.description_raw.replace(/<[^>]*>/g, "")
+    : "";
 
-    console.log(getAchievements.map((a) => a.id));
-    console.log(achievementsCount);
-    const detailed = getAchievements.map((index) => index.name);
+  // //Child
+  // const AchievementsComponent = ({ getAchievements, achievementsCount }) => {
+  //   {
+  //     /**
+  // Achievement Child Component to style the Component to display Achievement data.
+  // */
+  //   }
 
-    if (!getAchievements || !achievementsCount) return;
-    return (
-      <View style={{ flex: 1 }}>
-        <Text style={styles.gameAchievementsTitle}>
-          There are {achievementsCount} Total Achievements:
-        </Text>
-        <Text style={styles.gameAchievementsTitle}>
-          Currently Displaying {getAchievements.length}/{achievementsCount}
-        </Text>
+  //   console.log(getAchievements.map((a) => a.id));
+  //   console.log(achievementsCount);
+  //   const detailed = getAchievements.map((index) => index.name);
 
-        <View
-          style={{
-            ...styles.gameAchievementsContainer,
-          }}
-        >
-          {getAchievements.map((index) => {
-            return (
-              <View style={{ maxHeight: 300 }}>
-                <ScrollView
-                  key={index.id}
-                  contentContainerStyle={{
-                    borderColor: "black",
-                    borderWidth: 7,
-                    margin: 7,
-                    paddingLeft: 7,
-                    paddingRight: 7,
-                  }}
-                  nestedScrollEnabled
-                >
-                  <Text style={styles.gameAchievementsTitle}>
-                    Title: {index.name}
-                  </Text>
+  //   if (!getAchievements || !achievementsCount) return;
+  //   return (
+  //     <View style={{ flex: 1 }}>
+  //       <Text style={styles.gameAchievementsTitle}>
+  //         There are {achievementsCount} Total Achievements:
+  //       </Text>
+  //       <Text style={styles.gameAchievementsTitle}>
+  //         Currently Displaying {getAchievements.length}/{achievementsCount}
+  //       </Text>
 
-                  <Text style={styles.gameAchievementsText}>
-                    Description: {index.description}
-                    {"\n"}
-                  </Text>
-                </ScrollView>
-              </View>
-            );
-          })}
-        </View>
-      </View>
-    );
-  };
+  //       <View
+  //         style={{
+  //           ...styles.gameAchievementsContainer,
+  //         }}
+  //       >
+  //         {getAchievements.map((index) => {
+  //           return (
+  //             <View style={{ maxHeight: 300 }} key={index.id}>
+  //               <ScrollView
+  //                 // key={index.id}
+  //                 contentContainerStyle={{
+  //                   borderColor: "black",
+  //                   borderWidth: 7,
+  //                   margin: 7,
+  //                   paddingLeft: 7,
+  //                   paddingRight: 7,
+  //                 }}
+  //                 nestedScrollEnabled
+  //               >
+  //                 <Text style={styles.gameAchievementsTitle}>
+  //                   Title: {index.name}
+  //                 </Text>
+
+  //                 <Text style={styles.gameAchievementsText}>
+  //                   Description: {index.description}
+  //                   {"\n"}
+  //                 </Text>
+  //               </ScrollView>
+  //             </View>
+  //           );
+  //         })}
+  //       </View>
+  //     </View>
+  //   );
+  // };
 
   useEffect(() => {
     {
@@ -321,11 +327,14 @@ Without this, the screen could show empty or stale data depending on navigation 
 
           {/* Game description */}
           <Text style={styles.gameDescriptionText}>
-            {gameData.description_raw}
+            {strippedDescription}
+            {/* Strip HTML tags for better readability  */}
           </Text>
 
           {/* Extra info */}
-          <View style={styles.extraInfoContainer}>
+          <ExtraInfoSection gameData={gameData} />
+
+          {/* <View style={styles.extraInfoContainer}>
             <FontAwesome name="info" size={24} color="#fff" />
             <Text style={styles.extraInfoTitleText}>Extra Information</Text>
             <Text style={styles.extraInfoText}>
@@ -341,7 +350,7 @@ Without this, the screen could show empty or stale data depending on navigation 
             <Text style={styles.extraInfoText}>
               Genres: {gameData.genres.map((g) => g.name).join(", ")}
             </Text>
-          </View>
+          </View> */}
 
           {/* Achievements Display 
           This View will display the achievements the APi has access to. 
@@ -359,20 +368,28 @@ Without this, the screen could show empty or stale data depending on navigation 
                 </Text>
               </>
             ) : (
-              <Button
+              <TouchableOpacity
                 style={styles.button}
-                title="Fetch More Achievements"
                 onPress={() => {
                   setPage((prevPage) => prevPage + 1);
                   fetchGameAchievement();
                 }}
-              />
+              >
+                <Text style={{ textAlign: "center", color: "#fff" }}>
+                  Fetch More Achievements {"\n"}(Currently Displaying{" "}
+                  {gameAchievements.length}/{gameAchievementsCount})
+                </Text>
+              </TouchableOpacity>
             )}
 
-            <AchievementsComponent
+            <AchievementSection
               getAchievements={gameAchievements}
               achievementsCount={gameAchievementsCount}
             />
+            {/* <AchievementsComponent
+              getAchievements={gameAchievements}
+              achievementsCount={gameAchievementsCount}
+            /> */}
           </View>
         </ScrollView>
       ) : (
