@@ -13,33 +13,47 @@ const RAWG_KEY = process.env.RAWG_KEY;
 
 //Endpoint to search for games
 app.get("/api/games/search", async (req, res) => {
-  const resp = await fetch(
-    `https://api.rawg.io/api/games?search=${req.query.search}&search_precise=true&key=${RAWG_KEY}`
-  );
-  // Handle 404 and other errors
-  if (resp.status === 404) {
-    console.log("404 Error");
+  try {
+    const page = Number(req.query.page) || 1;
+    const search = req.query.search || "";
 
-    return res.status(404).json({ error: "Games not found." });
-  } else if (!resp.ok) {
-    console.log("Other Error");
+    const resp = await fetch(
+      `https://api.rawg.io/api/games?search=${search}&key=${RAWG_KEY}&page_size=20&page=${page}&ordering=-rating`
+    );
 
-    return res.status(resp.status).json({ error: "Failed to fetch games." });
+    if (!resp.ok) {
+      return res.status(resp.status).json({ error: "Failed to fetch games." });
+    }
+
+    // Handle 404 and other errors
+    if (resp.status === 404) {
+      console.log("404 Error");
+      return res.status(404).json({ error: "Games not found." });
+    }
+
+    // If the response is successful, parse and return the data.
+    const data = await resp.json();
+
+    //Filter to make sure the games could pass as actually legitimate.
+    const filterResults = data.results.filter(
+      (game) =>
+        game.name &&
+        !game.name.toLowerCase().includes("undefined") && // remove ".undefined"
+        game.background_image // must have image
+    );
+    console.log(filterResults.length);
+
+    res.json({
+      count: data.count,
+      next: data.next,
+      previous: data.previous,
+      results: filterResults,
+      page: page,
+    });
+  } catch (error) {
+    console.error("Error fetching games:", error);
+    return res.status(500).json({ error: "Server error." });
   }
-
-  // If the response is successful, parse and return the data.
-  const data = await resp.json();
-
-  //Filter to make sure the games could pass as actually legitimate.
-  const filter = data.results.filter(
-    (game) =>
-      game.name &&
-      !game.name.toLowerCase().includes("undefined") && // remove ".undefined"
-      game.background_image && // must have image
-      game.rating > 0 && // must have rating
-      game.ratings_count > 0
-  );
-  res.json(filter);
 });
 
 //Endpoint to get game details by ID

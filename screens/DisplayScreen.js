@@ -102,10 +102,7 @@ const DisplayScreen = ({ route }) => {
         Get data for both count and achievements 
         check if achievements data was collected.
         achievement count is put into state
-        achievemnt results is placed into state
-        
-        
-        
+        achievement results is placed into state
         
         */
       }
@@ -164,64 +161,6 @@ const DisplayScreen = ({ route }) => {
   const strippedDescription = gameData?.description_raw
     ? gameData.description_raw.replace(/<[^>]*>/g, "")
     : "";
-
-  // //Child
-  // const AchievementsComponent = ({ getAchievements, achievementsCount }) => {
-  //   {
-  //     /**
-  // Achievement Child Component to style the Component to display Achievement data.
-  // */
-  //   }
-
-  //   console.log(getAchievements.map((a) => a.id));
-  //   console.log(achievementsCount);
-  //   const detailed = getAchievements.map((index) => index.name);
-
-  //   if (!getAchievements || !achievementsCount) return;
-  //   return (
-  //     <View style={{ flex: 1 }}>
-  //       <Text style={styles.gameAchievementsTitle}>
-  //         There are {achievementsCount} Total Achievements:
-  //       </Text>
-  //       <Text style={styles.gameAchievementsTitle}>
-  //         Currently Displaying {getAchievements.length}/{achievementsCount}
-  //       </Text>
-
-  //       <View
-  //         style={{
-  //           ...styles.gameAchievementsContainer,
-  //         }}
-  //       >
-  //         {getAchievements.map((index) => {
-  //           return (
-  //             <View style={{ maxHeight: 300 }} key={index.id}>
-  //               <ScrollView
-  //                 // key={index.id}
-  //                 contentContainerStyle={{
-  //                   borderColor: "black",
-  //                   borderWidth: 7,
-  //                   margin: 7,
-  //                   paddingLeft: 7,
-  //                   paddingRight: 7,
-  //                 }}
-  //                 nestedScrollEnabled
-  //               >
-  //                 <Text style={styles.gameAchievementsTitle}>
-  //                   Title: {index.name}
-  //                 </Text>
-
-  //                 <Text style={styles.gameAchievementsText}>
-  //                   Description: {index.description}
-  //                   {"\n"}
-  //                 </Text>
-  //               </ScrollView>
-  //             </View>
-  //           );
-  //         })}
-  //       </View>
-  //     </View>
-  //   );
-  // };
 
   useEffect(() => {
     {
@@ -334,24 +273,6 @@ Without this, the screen could show empty or stale data depending on navigation 
           {/* Extra info */}
           <ExtraInfoSection gameData={gameData} />
 
-          {/* <View style={styles.extraInfoContainer}>
-            <FontAwesome name="info" size={24} color="#fff" />
-            <Text style={styles.extraInfoTitleText}>Extra Information</Text>
-            <Text style={styles.extraInfoText}>
-              Metacritic Score: {gameData.metacritic}
-            </Text>
-            <Text style={styles.extraInfoText}>
-              Released: {gameData.released}
-            </Text>
-            <Text style={styles.extraInfoText}>
-              Platforms:{" "}
-              {gameData.platforms.map((p) => p.platform.name).join(", ")}
-            </Text>
-            <Text style={styles.extraInfoText}>
-              Genres: {gameData.genres.map((g) => g.name).join(", ")}
-            </Text>
-          </View> */}
-
           {/* Achievements Display 
           This View will display the achievements the APi has access to. 
           It will only show 10 before another call is initiated by the user.
@@ -386,10 +307,7 @@ Without this, the screen could show empty or stale data depending on navigation 
               getAchievements={gameAchievements}
               achievementsCount={gameAchievementsCount}
             />
-            {/* <AchievementsComponent
-              getAchievements={gameAchievements}
-              achievementsCount={gameAchievementsCount}
-            /> */}
+           
           </View>
         </ScrollView>
       ) : (
